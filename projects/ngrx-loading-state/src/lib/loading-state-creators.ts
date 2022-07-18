@@ -11,6 +11,7 @@ import {
   LoadingStates,
   WithLoadingStates,
 } from './loading-state-types';
+import { NoIntersection } from './utils';
 
 // These classes are basically serving the same purpose as props<T> in createAction() where it
 // just holds the type and allows you to name the class to make it easier to read. The alternative

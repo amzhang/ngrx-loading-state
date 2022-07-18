@@ -1,5 +1,5 @@
 import { createFeatureSelector } from '@ngrx/store';
-import { createLoadingStatesSelector } from '../lib/loading-state-actions';
+import { createLoadingStatesSelector } from '../lib/loading-state-creators';
 import { fetchCount } from './simple.actions';
 import { SimpleState, SIMPLE_FEATURE_KEY } from './simple.reducer';
 

@@ -3,7 +3,7 @@ import {
   failure,
   load,
   success,
-} from '../lib/loading-state-actions';
+} from '../lib/loading-state-creators';
 
 export const fetchCount = createLoadingActions(
   'Fetch',

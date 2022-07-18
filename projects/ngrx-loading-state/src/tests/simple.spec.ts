@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
+import { EffectsModule } from '@ngrx/effects';
 import { Store, StoreModule } from '@ngrx/store';
 import { fetchCount } from './simple.actions';
+import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';
 import { simpleReducer, SIMPLE_FEATURE_KEY } from './simple.reducer';
 
@@ -15,7 +17,8 @@ describe('Simple test', () => {
       imports: [
         StoreModule.forRoot({}),
         StoreModule.forFeature(SIMPLE_FEATURE_KEY, simpleReducer),
-        // EffectsModule.forFeature([VaultEffects]),
+        EffectsModule.forRoot(),
+        EffectsModule.forFeature([SimpleEffects]),
       ],
     });
 
@@ -32,7 +35,9 @@ describe('Simple test', () => {
     await new Promise((resolve) => {
       fetchCountState$.subscribe((state) => {
         console.log(state);
-        resolve(0);
+        if (state.success) {
+          resolve(0);
+        }
       });
     });
   });
