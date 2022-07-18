@@ -8,8 +8,10 @@ import { ActionCreator, TypedAction } from '@ngrx/store/src/models';
 import { LoadingActions } from './loading-state-actions';
 import {
   ErrorHandlerState,
+  INITIAL_LOADING_STATE,
   LoadAction,
   LoadingState,
+  LoadingStates,
 } from './loading-state-types';
 import { lodash } from './lodash';
 

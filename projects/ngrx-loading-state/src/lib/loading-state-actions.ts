@@ -2,6 +2,9 @@ import {
   ActionCreator,
   createAction,
   createActionGroup,
+  createSelector,
+  DefaultProjectorFn,
+  MemoizedSelector,
   NotAllowedCheck,
   on,
   props,
@@ -24,6 +27,7 @@ import {
 import {
   ErrorHandlerState,
   FailureAction,
+  INITIAL_LOADING_STATE,
   LoadAction,
   LoadingState,
   LoadingStates,
@@ -37,15 +41,6 @@ type LoadingActionsReducerTypes<State> = ReducerTypes<
   State,
   ActionCreator<string, Creator<any[], object>>[]
 >;
-
-const init = Object.freeze({
-  loading: false,
-  success: false,
-  issueFetch: false,
-  ErrorHandlerType: ErrorHandlerState.INIT,
-  successTimestamp: undefined,
-  error: undefined,
-} as const);
 
 export class LoadingActions<
   LoadPayloadType extends object,
@@ -120,151 +115,6 @@ export class LoadingActions<
   //   getError(loadingStates: LoadingStates): LrError2 {
   //     this.checkNotUseId();
   //     return LoadingStatesManager.getError(loadingStates, this.getLoadingKey());
-  //   }
-
-  //   /**
-  //    * Returns a map of selectors for loading, success, error, and the entire state.
-  //    * The advantage of doing it in a bundle is that we can share the result of createStateSelector(),
-  //    * if we separated into individual functions, each function might need to call createStateSelector()
-  //    * to create a new instance of the selector. We can't cache any created selectors because will cause
-  //    * memory leak since the cached references are always help in this class and hence does not get released.
-  //    * @param selectLoadingStates Selector that returns the loadingStats of the feature slice. You can use createLoadingStatesSelector()
-  //    *   to create it.
-  //    * @returns A collection of selectors
-  //    *   state: the LoadingState
-  //    *   loading: True if loading
-  //    *   success: True if last load was successful
-  //    *   error: LrError2 object if previous loading failed.
-  //    *
-  //    */
-  //   createSelectors(
-  //     selectLoadingStates: MemoizedSelector<
-  //       object,
-  //       LoadingStates,
-  //       DefaultProjectorFn<LoadingStates>
-  //     >
-  //   ): {
-  //     state: MemoizedSelector<
-  //       object,
-  //       LoadingState,
-  //       DefaultProjectorFn<LoadingState>
-  //     >;
-  //     loading: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
-  //     success: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
-  //     error: MemoizedSelector<object, LrError2, DefaultProjectorFn<LrError2>>;
-  //   } {
-  //     this.checkNotUseId();
-  //     const state = createSelector(selectLoadingStates, (loadingStates) => {
-  //       return LoadingStatesManager.getState(loadingStates, this.getLoadingKey());
-  //     });
-
-  //     const loading = createSelector(
-  //       state,
-  //       (loadingState) => loadingState.loading
-  //     );
-  //     const success = createSelector(
-  //       state,
-  //       (loadingState) => loadingState.success
-  //     );
-  //     const error = createSelector(state, (loadingState) => loadingState.error);
-
-  //     return {
-  //       state,
-  //       loading,
-  //       success,
-  //       error,
-  //     };
-  //   }
-
-  //   /**
-  //    *
-  //    * @param selectLoadingStates
-  //    * @returns A collection of selectors
-  //   *    ids: map id to LoadingState
-  //    *   state: the LoadingState parameterized on the id
-  //    *   loading: True if loading parameterized on the id
-  //    *   success: True if last load was successful parameterized on the id
-  //    *   error: LrError2 object if previous loading failed. parameterized on the id
-
-  //    */
-  //   createIdSelectors(
-  //     selectLoadingStates: MemoizedSelector<
-  //       object,
-  //       LoadingStates,
-  //       DefaultProjectorFn<LoadingStates>
-  //     >
-  //   ): {
-  //     ids: MemoizedSelector<
-  //       object,
-  //       IdLoadingStateIds,
-  //       DefaultProjectorFn<IdLoadingStateIds>
-  //     >;
-  //     state: (
-  //       id: string
-  //     ) => MemoizedSelector<
-  //       object,
-  //       LoadingState,
-  //       DefaultProjectorFn<LoadingState>
-  //     >;
-  //     loading: (
-  //       id: string
-  //     ) => MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
-  //     success: (
-  //       id: string
-  //     ) => MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
-  //     error: (
-  //       id: string
-  //     ) => MemoizedSelector<object, LrError2, DefaultProjectorFn<LrError2>>;
-  //   } {
-  //     this.checkUseId();
-
-  //     const ids = createSelector(selectLoadingStates, (loadingStates) => {
-  //       return LoadingStatesManager.getIds(loadingStates, this.getLoadingKey());
-  //     });
-
-  //     const state = (
-  //       id: string
-  //     ): MemoizedSelector<
-  //       object,
-  //       LoadingState,
-  //       DefaultProjectorFn<LoadingState>
-  //     > => {
-  //       return createSelector(ids, (ids) => {
-  //         return ids[id];
-  //       });
-  //     };
-
-  //     const loading = (
-  //       id: string
-  //     ): MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>> => {
-  //       return createSelector(state(id), (loadingState) => {
-  //         return loadingState.loading;
-  //       });
-  //     };
-
-  //     const success = (
-  //       id: string
-  //     ): MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>> => {
-  //       return createSelector(state(id), (loadingState) => {
-  //         return loadingState.success;
-  //       });
-  //     };
-
-  //     const error = (
-  //       id: string
-  //     ): MemoizedSelector<object, LrError2, DefaultProjectorFn<LrError2>> => {
-  //       return createSelector(state(id), (loadingState) => {
-  //         return loadingState.error;
-  //       });
-  //     };
-
-  //     return {
-  //       ids,
-  //       state,
-  //       loading,
-  //       success,
-  //       error,
-  //     };
   //   }
 
   // ------------------------------------------------------------------------------------------------
@@ -367,11 +217,74 @@ export class LoadingActions<
       );
     });
   }
+
+  // ----------------------------------------------------------------------------
+  // Selectors
+  // ----------------------------------------------------------------------------
+  /**
+   * Returns a map of selectors for loading, success, error, and the entire state.
+   * The advantage of doing it in a bundle is that we can share the result of createStateSelector(),
+   * if we separated into individual functions, each function might need to call createStateSelector()
+   * to create a new instance of the selector. We can't cache any created selectors because will cause
+   * memory leak since the cached references are always help in this class and hence does not get released.
+   * @param selectLoadingStates Selector that returns the loadingStats of the feature slice. You can use createLoadingStatesSelector()
+   *   to create it.
+   * @returns A collection of selectors
+   *   state: the LoadingState
+   *   loading: True if loading
+   *   success: True if last load was successful
+   *   error: LrError2 object if previous loading failed.
+   *
+   */
+  createSelectors(
+    selectLoadingStates: MemoizedSelector<
+      object,
+      LoadingStates,
+      DefaultProjectorFn<LoadingStates>
+    >
+  ): {
+    state: MemoizedSelector<
+      object,
+      LoadingState,
+      DefaultProjectorFn<LoadingState>
+    >;
+    loading: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
+    success: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
+    error: MemoizedSelector<object, any, DefaultProjectorFn<any>>;
+  } {
+    const state = createSelector(selectLoadingStates, (loadingStates) => {
+      return this.getLoadingState(loadingStates);
+    });
+
+    const loading = createSelector(
+      state,
+      (loadingState) => loadingState.loading
+    );
+    const success = createSelector(
+      state,
+      (loadingState) => loadingState.success
+    );
+    const error = createSelector(state, (loadingState) => loadingState.error);
+
+    return {
+      state,
+      loading,
+      success,
+      error,
+    };
+  }
+
   // ----------------------------------------------------------------------------
   // Helpers
   // ----------------------------------------------------------------------------
   private get key(): string {
     return this.load.type;
+  }
+
+  private getLoadingState(loadingStates: LoadingStates): LoadingState {
+    // We should not be modifying the state without going via the reducer, hence
+    // returning the immutable "init" object.
+    return loadingStates[this.key] || INITIAL_LOADING_STATE;
   }
 
   private setState(options: {
@@ -406,7 +319,7 @@ export class LoadingActions<
     action: Action & LoadAction
   ): LoadingStates {
     const getNewState = (oldState: LoadingState) => {
-      oldState = oldState ?? init;
+      oldState = oldState ?? INITIAL_LOADING_STATE;
 
       const issueFetch = shouldIssueFetch(oldState, action);
 
@@ -465,7 +378,7 @@ export class LoadingActions<
         error: undefined,
       };
 
-      return distinctState(oldState ?? init, newState);
+      return distinctState(oldState ?? INITIAL_LOADING_STATE, newState);
     };
 
     return this.setState({
@@ -485,7 +398,7 @@ export class LoadingActions<
     action: Action & FailureAction
   ): LoadingStates {
     const getNewState = (oldState: LoadingState) => {
-      oldState = oldState ?? init;
+      oldState = oldState ?? INITIAL_LOADING_STATE;
 
       const newState: Readonly<LoadingState> = {
         loading: false,
@@ -563,5 +476,13 @@ export function createLoadingActions<
     failure: actionFactory<FailureAction & FailurePayloadType>(
       `${actionTypePrefix} Failure`
     ),
+  });
+}
+
+export function createLoadingStatesSelector<State extends WithLoadingStates>(
+  featureSelector: MemoizedSelector<object, State, DefaultProjectorFn<State>>
+): MemoizedSelector<object, LoadingStates, DefaultProjectorFn<LoadingStates>> {
+  return createSelector(featureSelector, (state) => {
+    return state.loadingStates;
   });
 }

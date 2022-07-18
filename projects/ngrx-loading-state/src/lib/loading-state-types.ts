@@ -4,14 +4,26 @@ export enum ErrorHandlerState {
   LOCAL = 'LOCAL',
 }
 
-export interface LoadingState<Error = any> {
+// TODO Make this generic
+type LoadingStateError = any;
+
+export interface LoadingState {
   loading: boolean; // Api is loading
   success: boolean; // Api returned successfully
   issueFetch: boolean; // true if we should issue a fetch
   errorHandlerState: ErrorHandlerState;
   successTimestamp?: number; // Millisecond unix timestamp of when data is loaded. Date.now()
-  error?: Error; // Api returned error
+  error?: LoadingStateError; // Api returned error
 }
+
+export const INITIAL_LOADING_STATE = Object.freeze({
+  loading: false,
+  success: false,
+  issueFetch: false,
+  ErrorHandlerType: ErrorHandlerState.INIT,
+  successTimestamp: undefined,
+  error: undefined,
+} as const);
 
 export interface LoadingStates {
   [key: string]: LoadingState;
@@ -39,5 +51,5 @@ export interface LoadAction {
 }
 
 export interface FailureAction {
-  error?: any;
+  error?: LoadingStateError;
 }
