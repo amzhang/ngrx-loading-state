@@ -1,12 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { Store, StoreModule } from '@ngrx/store';
-import { lastValueFrom, tap } from 'rxjs';
 import { fetchCount } from './simple.actions';
 import { SimpleFacade } from './simple.facade';
 import { simpleReducer, SIMPLE_FEATURE_KEY } from './simple.reducer';
-// import { MyCounterComponent } from '../my-counter/my-counter.component';
-// import { counterReducer } from '../counter.reducer';
 
 describe('Simple test', () => {
   let store: Store;
