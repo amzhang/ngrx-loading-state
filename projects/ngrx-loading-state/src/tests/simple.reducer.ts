@@ -1,5 +1,5 @@
 import { createReducer } from '@ngrx/store';
-import { initialise, WithLoadingStates } from '../lib/loading-state';
+import { initialise, WithLoadingStates } from '../lib/loading-state-types';
 import { fetchCount } from './simple.actions';
 
 export const SIMPLE_FEATURE_KEY = 'simple';

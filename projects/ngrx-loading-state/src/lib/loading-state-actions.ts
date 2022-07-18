@@ -15,11 +15,20 @@ import {
 } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
-  ErrorHandler,
+  actionFactory,
+  ActionFactoryResult,
+  distinctState,
+  getErrorHandler,
+  shouldIssueFetch,
+} from './loading-state-functions';
+import {
+  ErrorHandlerState,
+  FailureAction,
+  LoadAction,
   LoadingState,
   LoadingStates,
   WithLoadingStates,
-} from './loading-state';
+} from './loading-state-types';
 import { lodash } from './lodash';
 
 type OnState<State> = State extends infer S ? S : never;
@@ -29,107 +38,14 @@ type LoadingActionsReducerTypes<State> = ReducerTypes<
   ActionCreator<string, Creator<any[], object>>[]
 >;
 
-export interface FailureAction {
-  error?: any;
-}
-
-export interface LoadAction {
-  // If there is existing data and the time since it was loaded does not exceed
-  // the maxAge in milliseconds, then we can consider the value in the store valid. The loadingState.issueFetch
-  // will be set to false in this case.
-  maxAge?: number;
-  // If true, any loading errors will not generate global error notifications.
-  // Set this to true if your component wants to handle the error.
-  // If there are multiple calls to dispatch load action, then if any of the
-  // actions has localError == true, then the next failure action will be handled
-  // locally and not show a global error.
-  localError?: boolean;
-}
-
-export const init = Object.freeze({
+const init = Object.freeze({
   loading: false,
   success: false,
   issueFetch: false,
-  errorHandler: ErrorHandler.INIT,
+  ErrorHandlerType: ErrorHandlerState.INIT,
   successTimestamp: undefined,
   error: undefined,
 } as const);
-
-const shouldIssueFetch = (
-  oldState: Readonly<LoadingState>,
-  action: Readonly<LoadAction>
-): boolean => {
-  const maxAge = action?.maxAge;
-
-  // If action not given, then we err on the side of caution and always do a reload, even if
-  // a load is already happening.
-  if (maxAge == null) {
-    return true;
-  } else {
-    // Check if data not loaded or if too old.
-    const reload =
-      !oldState.successTimestamp ||
-      Date.now() - oldState.successTimestamp >= maxAge;
-
-    // Do not issue duplicate loads if a fetch is already in progress
-    return reload && !oldState.loading;
-  }
-};
-
-const getErrorHandler = (
-  oldState: Readonly<LoadingState>,
-  action: Readonly<LoadAction>,
-  issueFetch: boolean
-): ErrorHandler => {
-  // If loading or issuing API fetch, then there is guaranteed to be a success/failure
-  // action that the global error handler might need to handle.
-  if (oldState.loading || issueFetch) {
-    // If any load action sets the localError to true, then it disables the global error hander
-    // until the success/failure action is handled.
-    if (action.localError) {
-      return ErrorHandler.LOCAL;
-    } else if (oldState.errorHandler == ErrorHandler.INIT) {
-      // If it's in the INIT state, then we use the default global handler because the
-      // loading action has not requests for localError handler.
-      return ErrorHandler.GLOBAL;
-    }
-    // else just fall through and return the existing errorHandler unchanged.
-  }
-
-  return oldState.errorHandler;
-};
-
-function distinctState(
-  oldState: Readonly<LoadingState>,
-  newState: Readonly<LoadingState>
-): Readonly<LoadingState> {
-  // Return the same object reference if the state has not changed. This
-  // avoids unnecessary firing of selectors
-  return lodash.isEqual(oldState, newState) ? oldState : newState;
-}
-
-export type ActionFactoryResult<T extends object> = ActionCreator<
-  string,
-  (props: T & NotAllowedCheck<T>) => T & TypedAction<string>
->;
-
-/**
- * This function make it easier to define the type of prop<T>. Internal use only.
- *
- * @param type String type of the action
- * @returns An action creator function
- */
-// T extends object meets the condition of props function
-// ref: https://stackoverflow.com/questions/65888508/how-to-use-generic-type-in-ngrx-createaction-props
-function actionFactory<T extends object>(type: string): ActionFactoryResult<T> {
-  // restricting config type to match createAction requirements
-  // TODO: https://lifeready.atlassian.net/browse/LIFE-481
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return createAction(
-    type,
-    props<any>() as ActionCreatorProps<T> & NotAllowedCheck<T>
-  );
-}
 
 export class LoadingActions<
   LoadPayloadType extends object,
@@ -140,12 +56,6 @@ export class LoadingActions<
   readonly success: ActionFactoryResult<SuccessPayloadType>;
   readonly failure: ActionFactoryResult<FailureAction & FailurePayloadType>;
 
-  /**
-   *
-   * @param options.userId "undefined" means this is not a loading action parameterized by id.
-   *   "true" means the user will directly set the id in the action.
-   *   "function" can be provided to compute an id from the action payload.
-   */
   constructor(options: {
     load: ActionFactoryResult<LoadAction & LoadPayloadType>;
     success: ActionFactoryResult<SuccessPayloadType>;
@@ -457,48 +367,6 @@ export class LoadingActions<
       );
     });
   }
-
-  //   idLoadHandler(
-  //     fetch: (
-  //       idActions$: Observable<
-  //         LoadAction & LoadPayloadType & TypedAction<string>
-  //       >,
-  //       id: string
-  //     ) => Observable<Action>
-  //   ): UnaryFunction<Observable<Action>, Observable<Action>> {
-  //     return pipe(ofType(this.load), (source): Observable<Action> => {
-  //       // Below is inspired by: https://github.com/nrwl/nx/blob/master/packages/angular/src/runtime/nx/data-persistence.ts#L75
-  //       const groupedFetches = source.pipe(
-  //         groupBy((action) => {
-  //           return action.id; // This will be used as the "group.key"
-  //         })
-  //       );
-  //       return groupedFetches.pipe(
-  //         mergeMap((group) => {
-  //           return fetch(group, group.key).pipe(
-  //             tap((action: TypedAction<string>) => {
-  //               // If the action is success or failure, then fill in the id.
-  //               if (
-  //                 this.instanceOfSuccess(action) ||
-  //                 this.instanceOfFailure(action)
-  //               ) {
-  //                 if (action.id === undefined) {
-  //                   // Modifying the action in-place rather than returning a copy. Not certain which is better at the moment.
-  //                   action.id = group.key;
-  //                 } else if (action.id != group.key) {
-  //                   throw new LrBadLogicException2(
-  //                     "This is an id-based success/failure action, so you either omit the id parameter, or set it to the same as the load action's id. " +
-  //                       `Load action id: ${group.key}, success/failure action id: ${action.id}`
-  //                   );
-  //                 }
-  //               }
-  //             })
-  //           );
-  //         })
-  //       );
-  //     });
-  //   }
-
   // ----------------------------------------------------------------------------
   // Helpers
   // ----------------------------------------------------------------------------
@@ -542,14 +410,14 @@ export class LoadingActions<
 
       const issueFetch = shouldIssueFetch(oldState, action);
 
-      const errorHandler = getErrorHandler(oldState, action, issueFetch);
+      const errorHandlerType = getErrorHandler(oldState, action, issueFetch);
 
       const newState: Readonly<LoadingState> = issueFetch
         ? {
             loading: true,
             success: false,
             issueFetch,
-            errorHandler,
+            errorHandlerState: errorHandlerType,
             successTimestamp: oldState.successTimestamp,
             error: undefined,
           }
@@ -563,7 +431,7 @@ export class LoadingActions<
             loading: oldState.loading,
             success: oldState.success,
             issueFetch,
-            errorHandler,
+            errorHandlerState: errorHandlerType,
             successTimestamp: oldState.successTimestamp,
             error: oldState.error,
           };
@@ -592,7 +460,7 @@ export class LoadingActions<
         success: true,
         issueFetch: false,
         // each load action will set this again, so here we just set it back to default.
-        errorHandler: ErrorHandler.INIT,
+        errorHandlerState: ErrorHandlerState.INIT,
         successTimestamp: Date.now(),
         error: undefined,
       };
@@ -624,7 +492,7 @@ export class LoadingActions<
         success: false,
         issueFetch: false,
         // Leading this as is for the global error handler to check.
-        errorHandler: oldState.errorHandler,
+        errorHandlerState: oldState.errorHandlerState,
         successTimestamp: oldState.successTimestamp,
         error: action.error,
       };

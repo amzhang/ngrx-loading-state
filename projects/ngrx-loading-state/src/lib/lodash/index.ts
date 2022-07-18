@@ -1,2 +1,2 @@
-import * as lodash from './lr-lodash.functions';
+import * as lodash from './lodash.functions';
 export { lodash };
