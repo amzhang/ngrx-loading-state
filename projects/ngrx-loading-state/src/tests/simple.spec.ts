@@ -1,8 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { EffectsModule } from '@ngrx/effects';
 import { Store, StoreModule, USER_PROVIDED_META_REDUCERS } from '@ngrx/store';
-import { globalErrorReducerFactory } from '../lib/loading-state-global-error-reducer';
-import { FailureAction, LoadingState, MAX_AGE_LATEST } from '../lib/loading-state-types';
+import {
+  FailureAction,
+  globalErrorReducerFactory,
+  LoadingState,
+  MAX_AGE_LATEST
+} from '../public-api';
+
 import { fetchCount } from './simple.actions';
 import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { LoadAction, LoadingState } from '../lib/loading-state-types';
+import { LoadAction, LoadingState } from '../public-api';
 import * as SimpleActions from './simple.actions';
 import * as SimpleSelectors from './simple.selectors';
 

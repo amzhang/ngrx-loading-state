@@ -1,4 +1,4 @@
-import { createLoadingActions, failure, load, success } from '../lib/loading-state-creators';
+import { createLoadingActions, failure, load, success } from '../public-api';
 
 export const fetchCount = createLoadingActions(
   'Fetch Count',

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { delay, map, of, switchMap } from 'rxjs';
-import { filterLoading } from '../lib/loading-state-effects';
+import { filterLoading } from '../public-api';
 import { fetchCount } from './simple.actions';
 import { fetchCountSelectors } from './simple.selectors';
 
