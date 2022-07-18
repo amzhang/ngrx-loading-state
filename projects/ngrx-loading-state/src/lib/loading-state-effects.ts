@@ -1,11 +1,4 @@
-import {
-  filter,
-  map,
-  Observable,
-  pipe,
-  UnaryFunction,
-  withLatestFrom,
-} from 'rxjs';
+import { filter, map, Observable, pipe, UnaryFunction, withLatestFrom } from 'rxjs';
 import { LoadingState } from './loading-state-types';
 
 export function filterLoading<T>(

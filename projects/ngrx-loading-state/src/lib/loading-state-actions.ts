@@ -1,28 +1,18 @@
 import {
   ActionCreator,
-  createAction,
-  createActionGroup,
   createSelector,
   DefaultProjectorFn,
   MemoizedSelector,
-  NotAllowedCheck,
   on,
-  props,
-  ReducerTypes,
+  ReducerTypes
 } from '@ngrx/store';
-import {
-  Action,
-  ActionCreatorProps,
-  Creator,
-  TypedAction,
-} from '@ngrx/store/src/models';
+import { Action, Creator, TypedAction } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
-  actionFactory,
   ActionFactoryResult,
   distinctState,
   getErrorHandler,
-  shouldIssueFetch,
+  shouldIssueFetch
 } from './loading-state-functions';
 import {
   ErrorHandlerState,
@@ -31,9 +21,9 @@ import {
   LoadAction,
   LoadingState,
   LoadingStates,
-  WithLoadingStates,
+  LOADING_STATE,
+  WithLoadingStates
 } from './loading-state-types';
-import { lodash } from './lodash';
 
 type OnState<State> = State extends infer S ? S : never;
 
@@ -72,51 +62,15 @@ export class LoadingActions<
     return action.type === this.load.type;
   }
 
-  instanceOfSuccess(
-    action: Action
-  ): action is ReturnType<ActionFactoryResult<SuccessPayloadType>> {
+  instanceOfSuccess(action: Action): action is ReturnType<ActionFactoryResult<SuccessPayloadType>> {
     return action.type === this.success.type;
   }
 
   instanceOfFailure(
     action: Action
-  ): action is ReturnType<
-    ActionFactoryResult<FailureAction & FailurePayloadType>
-  > {
+  ): action is ReturnType<ActionFactoryResult<FailureAction & FailurePayloadType>> {
     return action.type === this.failure.type;
   }
-
-  //   // TODO make these private
-  //   /**
-  //    * Returns the "loading" state
-  //    * @param loadingStates List of existing loading states
-  //    * @returns The "loading" state
-  //    */
-  //   getLoading(loadingStates: LoadingStates): boolean {
-  //     this.checkNotUseId();
-  //     return LoadingStatesManager.getLoading(loadingStates, this.getLoadingKey());
-  //   }
-
-  //   /**
-  //    * Returns the "success" state
-  //    * @param loadingStates List of existing loading states
-  //    * @returns The "success" state
-  //    */
-  //   getSuccess(loadingStates: LoadingStates): boolean {
-  //     this.checkNotUseId();
-  //     return LoadingStatesManager.getSuccess(loadingStates, this.getLoadingKey());
-  //   }
-
-  //   /**
-  //    * Returns the "error" state
-  //    * @param loadingStates List of existing loading states
-  //    * @returns The "error" state
-  //    */
-  //   getError(loadingStates: LoadingStates): LrError2 {
-  //     this.checkNotUseId();
-  //     return LoadingStatesManager.getError(loadingStates, this.getLoadingKey());
-  //   }
-
   // ------------------------------------------------------------------------------------------------
   // Reducer
   // ------------------------------------------------------------------------------------------------
@@ -158,10 +112,7 @@ export class LoadingActions<
       state: OnState<State>,
       action: LoadAction & LoadPayloadType & TypedAction<string>
     ) => State;
-    onSuccess?: (
-      state: OnState<State>,
-      action: SuccessPayloadType & TypedAction<string>
-    ) => State;
+    onSuccess?: (state: OnState<State>, action: SuccessPayloadType & TypedAction<string>) => State;
     onFailure?: (
       state: OnState<State>,
       action: FailureAction & FailurePayloadType & TypedAction<string>
@@ -177,7 +128,7 @@ export class LoadingActions<
         // Reducer must always create a new copy of the state.
         const newState = {
           ...state,
-          loadingStates: this.setLoading(state.loadingStates, action),
+          loadingStates: this.setLoading(state.loadingStates, action)
         };
 
         // The updated loadingStates is passed to the user code for maximum
@@ -187,23 +138,19 @@ export class LoadingActions<
       on(this.success, (state, action) => {
         const newState = {
           ...state,
-          loadingStates: this.setSuccess(state.loadingStates),
+          loadingStates: this.setSuccess(state.loadingStates)
         };
 
-        return (
-          onSuccess ? onSuccess(newState, action) : newState
-        ) as OnState<State>;
+        return (onSuccess ? onSuccess(newState, action) : newState) as OnState<State>;
       }),
       on(this.failure, (state, action) => {
         const newState = {
           ...state,
-          loadingStates: this.setFailure(state.loadingStates, action),
+          loadingStates: this.setFailure(state.loadingStates, action)
         };
 
-        return (
-          onFailure ? onFailure(newState, action) : newState
-        ) as OnState<State>;
-      }),
+        return (onFailure ? onFailure(newState, action) : newState) as OnState<State>;
+      })
     ];
   }
 
@@ -212,7 +159,7 @@ export class LoadingActions<
       return of(
         // AZ: Casting to "any" is less than ideal. But just can't figure out the complex typing here.
         this.failure({
-          error,
+          error
         } as any)
       );
     });
@@ -237,17 +184,9 @@ export class LoadingActions<
    *
    */
   createSelectors(
-    selectLoadingStates: MemoizedSelector<
-      object,
-      LoadingStates,
-      DefaultProjectorFn<LoadingStates>
-    >
+    selectLoadingStates: MemoizedSelector<object, LoadingStates, DefaultProjectorFn<LoadingStates>>
   ): {
-    state: MemoizedSelector<
-      object,
-      LoadingState,
-      DefaultProjectorFn<LoadingState>
-    >;
+    state: MemoizedSelector<object, LoadingState, DefaultProjectorFn<LoadingState>>;
     loading: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
     success: MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
     error: MemoizedSelector<object, any, DefaultProjectorFn<any>>;
@@ -256,21 +195,15 @@ export class LoadingActions<
       return this.getLoadingState(loadingStates);
     });
 
-    const loading = createSelector(
-      state,
-      (loadingState) => loadingState.loading
-    );
-    const success = createSelector(
-      state,
-      (loadingState) => loadingState.success
-    );
+    const loading = createSelector(state, (loadingState) => loadingState.loading);
+    const success = createSelector(state, (loadingState) => loadingState.success);
     const error = createSelector(state, (loadingState) => loadingState.error);
 
     return {
       state,
       loading,
       success,
-      error,
+      error
     };
   }
 
@@ -300,7 +233,7 @@ export class LoadingActions<
       // Return new reference only when the state has changed.
       return {
         ...loadingStates,
-        [this.key]: newState,
+        [this.key]: newState
       };
     } else {
       // No change in state, so no change in parent state.
@@ -314,27 +247,26 @@ export class LoadingActions<
    * @param action Loading action
    * @returns New loading state
    */
-  private setLoading(
-    loadingStates: LoadingStates,
-    action: Action & LoadAction
-  ): LoadingStates {
+  private setLoading(loadingStates: LoadingStates, action: Action & LoadAction): LoadingStates {
     const getNewState = (oldState: LoadingState) => {
       oldState = oldState ?? INITIAL_LOADING_STATE;
 
       const issueFetch = shouldIssueFetch(oldState, action);
 
-      const errorHandlerType = getErrorHandler(oldState, action, issueFetch);
+      const errorHandlerState = getErrorHandler(oldState, action, issueFetch);
 
       const newState: Readonly<LoadingState> = issueFetch
         ? {
+            type: LOADING_STATE,
             loading: true,
             success: false,
             issueFetch,
-            errorHandlerState: errorHandlerType,
+            errorHandlerState,
             successTimestamp: oldState.successTimestamp,
-            error: undefined,
+            error: undefined
           }
         : {
+            type: LOADING_STATE,
             // Deliberately avoiding the use of the spread operator, i.e. no ...oldState
             // because we want to be 100% explicit about the states we are setting. Using ...oldState
             // makes it difficult to read. Being explicit means we need to specify all fields
@@ -344,9 +276,9 @@ export class LoadingActions<
             loading: oldState.loading,
             success: oldState.success,
             issueFetch,
-            errorHandlerState: errorHandlerType,
+            errorHandlerState,
             successTimestamp: oldState.successTimestamp,
-            error: oldState.error,
+            error: oldState.error
           };
 
       return distinctState(oldState, newState);
@@ -354,7 +286,7 @@ export class LoadingActions<
 
     return this.setState({
       loadingStates,
-      getNewState,
+      getNewState
     });
   }
 
@@ -364,18 +296,17 @@ export class LoadingActions<
    * @returns New loading state
    */
   private setSuccess(loadingStates: LoadingStates): LoadingStates {
-    const getNewState = (
-      oldState: Readonly<LoadingState>
-    ): Readonly<LoadingState> => {
+    const getNewState = (oldState: Readonly<LoadingState>): Readonly<LoadingState> => {
       // Note that because success doesn't take in the current state, we can't use distinctState test.
       const newState: Readonly<LoadingState> = {
+        type: LOADING_STATE,
         loading: false,
         success: true,
         issueFetch: false,
         // each load action will set this again, so here we just set it back to default.
         errorHandlerState: ErrorHandlerState.INIT,
         successTimestamp: Date.now(),
-        error: undefined,
+        error: undefined
       };
 
       return distinctState(oldState ?? INITIAL_LOADING_STATE, newState);
@@ -383,7 +314,7 @@ export class LoadingActions<
 
     return this.setState({
       loadingStates,
-      getNewState,
+      getNewState
     });
   }
 
@@ -393,21 +324,19 @@ export class LoadingActions<
    * @param action Failure action
    * @returns New loading state
    */
-  private setFailure(
-    loadingStates: LoadingStates,
-    action: Action & FailureAction
-  ): LoadingStates {
+  private setFailure(loadingStates: LoadingStates, action: Action & FailureAction): LoadingStates {
     const getNewState = (oldState: LoadingState) => {
       oldState = oldState ?? INITIAL_LOADING_STATE;
 
       const newState: Readonly<LoadingState> = {
+        type: LOADING_STATE,
         loading: false,
         success: false,
         issueFetch: false,
         // Leading this as is for the global error handler to check.
         errorHandlerState: oldState.errorHandlerState,
         successTimestamp: oldState.successTimestamp,
-        error: action.error,
+        error: action.error
       };
 
       return distinctState(oldState, newState);
@@ -415,8 +344,7 @@ export class LoadingActions<
 
     return this.setState({
       loadingStates,
-      getNewState,
+      getNewState
     });
   }
 }
-

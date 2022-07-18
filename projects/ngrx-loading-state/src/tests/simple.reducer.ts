@@ -10,7 +10,7 @@ export type SimpleState = WithLoadingStates & {
 
 export const initialState: SimpleState = {
   loadingStates: initialise(),
-  count: 0,
+  count: 0
 };
 
 export const simpleReducer = createReducer(
@@ -19,8 +19,8 @@ export const simpleReducer = createReducer(
     onSuccess: (state, { count }): SimpleState => {
       return {
         ...state,
-        count,
+        count
       };
-    },
+    }
   })
 );

@@ -1,16 +1,7 @@
-import {
-  createSelector,
-  DefaultProjectorFn,
-  MemoizedSelector,
-} from '@ngrx/store';
+import { createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
 import { LoadingActions } from './loading-state-actions';
 import { actionFactory } from './loading-state-functions';
-import {
-  FailureAction,
-  LoadAction,
-  LoadingStates,
-  WithLoadingStates,
-} from './loading-state-types';
+import { FailureAction, LoadAction, LoadingStates, WithLoadingStates } from './loading-state-types';
 import { NoIntersection } from './utils';
 
 // These classes are basically serving the same purpose as props<T> in createAction() where it
@@ -63,9 +54,7 @@ export function createLoadingActions<
   return new LoadingActions({
     load: actionFactory<LoadAction & LoadPayloadType>(`${actionTypePrefix}`),
     success: actionFactory<SuccessPayloadType>(`${actionTypePrefix} Success`),
-    failure: actionFactory<FailureAction & FailurePayloadType>(
-      `${actionTypePrefix} Failure`
-    ),
+    failure: actionFactory<FailureAction & FailurePayloadType>(`${actionTypePrefix} Failure`)
   });
 }
 

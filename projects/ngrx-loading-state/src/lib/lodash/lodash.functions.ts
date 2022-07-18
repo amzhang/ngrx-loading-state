@@ -3,6 +3,4 @@
 // other functions in there that uses lodash won't have the lodash namespace.
 // The internet says this style of import improves bundle size. At least we only have to
 // do this in a single place here.
-import { isEqual } from 'lodash';
-
-export { isEqual };
+export { isEqual, isArray, isPlainObject } from 'lodash';

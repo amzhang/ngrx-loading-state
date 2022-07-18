@@ -1,13 +1,16 @@
 export enum ErrorHandlerState {
   INIT = 'INIT',
   GLOBAL = 'GLOBAL',
-  LOCAL = 'LOCAL',
+  LOCAL = 'LOCAL'
 }
 
 // TODO Make this generic
 type LoadingStateError = any;
 
+export const LOADING_STATE = 'LOADING_STATE' as const;
+
 export interface LoadingState {
+  type: typeof LOADING_STATE; // For dynamic type checking
   loading: boolean; // Api is loading
   success: boolean; // Api returned successfully
   issueFetch: boolean; // true if we should issue a fetch
@@ -16,13 +19,14 @@ export interface LoadingState {
   error?: LoadingStateError; // Api returned error
 }
 
-export const INITIAL_LOADING_STATE = Object.freeze({
+export const INITIAL_LOADING_STATE: LoadingState = Object.freeze({
+  type: LOADING_STATE,
   loading: false,
   success: false,
   issueFetch: false,
-  ErrorHandlerType: ErrorHandlerState.INIT,
+  errorHandlerState: ErrorHandlerState.INIT,
   successTimestamp: undefined,
-  error: undefined,
+  error: undefined
 } as const);
 
 export interface LoadingStates {
@@ -36,6 +40,8 @@ export interface WithLoadingStates {
 export function initialise(): LoadingStates {
   return {} as LoadingStates;
 }
+
+export const MAX_AGE_LATEST = 0;
 
 export interface LoadAction {
   // If there is existing data and the time since it was loaded does not exceed
