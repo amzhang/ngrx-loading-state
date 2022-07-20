@@ -9,21 +9,19 @@ import {
 import { Action, Creator, TypedAction } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
+  ErrorHandlerState,
+  FailureAction,
+  LoadAction,
+  LoadingState,
+  LOADING_STATE
+} from './loading-state';
+import {
   ActionFactoryResult,
   distinctState,
   getErrorHandler,
   shouldIssueFetch
 } from './loading-state-functions';
-import {
-  ErrorHandlerState,
-  FailureAction,
-  INITIAL_LOADING_STATE,
-  LoadAction,
-  LoadingState,
-  LoadingStates,
-  LOADING_STATE,
-  WithLoadingStates
-} from './loading-state-types';
+import { INITIAL_LOADING_STATE, LoadingStates, WithLoadingStates } from './loading-state-types';
 
 type OnState<State> = State extends infer S ? S : never;
 

@@ -1,7 +1,8 @@
 import { createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
+import { FailureAction, LoadAction } from './loading-state';
 import { LoadingActions } from './loading-state-actions';
 import { actionFactory } from './loading-state-functions';
-import { FailureAction, LoadAction, LoadingStates, WithLoadingStates } from './loading-state-types';
+import { LoadingStates, WithLoadingStates } from './loading-state-types';
 import { NoIntersection } from './utils';
 
 // These classes are basically serving the same purpose as props<T> in createAction() where it

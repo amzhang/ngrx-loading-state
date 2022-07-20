@@ -9,7 +9,7 @@ export type SimpleState = WithLoadingStates & {
 };
 
 export const initialState: SimpleState = {
-  loadingStates: initialise(),
+  ...initialise(),
   count: 0
 };
 
