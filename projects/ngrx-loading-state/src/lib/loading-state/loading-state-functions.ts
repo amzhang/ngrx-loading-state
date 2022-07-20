@@ -12,6 +12,10 @@ export function shouldIssueFetch(
   oldState: Readonly<LoadingStateBase>,
   action: Readonly<LoadAction>
 ): boolean {
+  if (oldState == null) {
+    return true;
+  }
+
   const maxAge = action?.maxAge;
 
   // If action not given, then we err on the side of caution and always do a reload, even if
@@ -32,6 +36,15 @@ export function getErrorHandler(
   action: Readonly<LoadAction>,
   issueFetch: boolean
 ): ErrorHandlerState {
+  if (oldState == null) {
+    // Then errorHandlerState can be assumed to be initialised to ErrorHandlerState.INIT
+    if (action.localError) {
+      return ErrorHandlerState.LOCAL;
+    } else {
+      return ErrorHandlerState.GLOBAL;
+    }
+  }
+
   // If loading or issuing API fetch, then there is guaranteed to be a success/failure
   // action that the global error handler might need to handle.
   if (oldState.loading || issueFetch) {
@@ -77,17 +90,21 @@ export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {
   // LoadingStateBase to a class, it doesn't seem likely. Below is verbose, but at least it should capture all
   // the fields.
 
-  // Using Required<> to ensure we don't miss any fields from LoadingStateBase.
-  const ret: Required<LoadingStateBase> = lodash.pick(src as Required<LoadingStateBase>, [
-    'loading',
-    'success',
-    'issueFetch',
-    'errorHandlerState',
-    'successTimestamp',
-    'error'
-  ]);
+  if (src == null) {
+    return src;
+  } else {
+    // Using Required<> to ensure we don't miss any fields from LoadingStateBase.
+    const ret: Required<LoadingStateBase> = lodash.pick(src as Required<LoadingStateBase>, [
+      'loading',
+      'success',
+      'issueFetch',
+      'errorHandlerState',
+      'successTimestamp',
+      'error'
+    ]);
 
-  return ret;
+    return ret;
+  }
 }
 
 export function getNewLoadState(
@@ -107,7 +124,7 @@ export function getNewLoadState(
         success: false,
         issueFetch,
         errorHandlerState,
-        successTimestamp: oldState.successTimestamp,
+        successTimestamp: oldState?.successTimestamp,
         error: undefined
       }
     : {

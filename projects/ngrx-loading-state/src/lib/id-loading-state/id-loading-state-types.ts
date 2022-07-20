@@ -1,9 +1,4 @@
-import {
-  FailureAction,
-  INITIAL_LOADING_STATE_BASE,
-  LoadAction,
-  LoadingStateBase
-} from '../loading-state/loading-state-types';
+import { FailureAction, LoadAction, LoadingStateBase } from '../loading-state/loading-state-types';
 
 export const ID_LOADING_STATE = 'ID_LOADING_STATE' as const;
 
@@ -25,12 +20,6 @@ export interface IdSuccessAction {
 export interface IdFailureAction extends FailureAction {
   id: Id;
 }
-
-export const INITIAL_ID_LOADING_STATE: IdLoadingState = Object.freeze({
-  ...INITIAL_LOADING_STATE_BASE,
-  type: ID_LOADING_STATE,
-  id: null
-} as const);
 
 export interface IdLoadingStateMap {
   [key: Id]: IdLoadingState;

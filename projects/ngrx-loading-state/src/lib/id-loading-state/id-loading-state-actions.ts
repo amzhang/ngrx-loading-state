@@ -23,7 +23,6 @@ import {
   IdLoadingStates,
   IdSuccessAction,
   ID_LOADING_STATE,
-  INITIAL_ID_LOADING_STATE,
   WithIdLoadingStatesOnly
 } from './id-loading-state-types';
 
@@ -244,7 +243,7 @@ export class IdLoadingActions<
   ): Readonly<IdLoadingState> {
     // We should not be modifying the state without going via the reducer, hence
     // returning the immutable "init" object.
-    return idLoadingStateMap?.[id] || INITIAL_ID_LOADING_STATE;
+    return idLoadingStateMap?.[id];
   }
 
   private setState(

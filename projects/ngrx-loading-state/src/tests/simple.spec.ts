@@ -9,6 +9,7 @@ import {
 } from '../public-api';
 
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { first } from 'rxjs';
 import { fetchCount, fetchIdCount } from './simple.actions';
 import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';
@@ -55,6 +56,16 @@ describe('Simple test', () => {
   });
 
   it('should fetch count', async () => {
+    await new Promise((resolve) => {
+      simpleFacade
+        .getFetchCountState()
+        .pipe(first())
+        .subscribe((state) => {
+          expect(state).toBeUndefined();
+          resolve(0);
+        });
+    });
+
     store.dispatch(fetchCount.load({ count: 5 }));
 
     await new Promise((resolve) => {
@@ -75,8 +86,6 @@ describe('Simple test', () => {
   });
 
   it('should use global error handler', async () => {
-    expect(true).toBeTruthy();
-
     globalFailureAction = null;
     globalFailureState = null;
 
@@ -96,8 +105,6 @@ describe('Simple test', () => {
   });
 
   it('should use local error handler', async () => {
-    expect(true).toBeTruthy();
-
     globalFailureAction = null;
     globalFailureState = null;
 
@@ -117,8 +124,6 @@ describe('Simple test', () => {
   });
 
   it('should filter out redundant loading actions', async () => {
-    expect(true).toBeTruthy();
-
     const apiCallsBefore = SimpleEffects.apiCalls;
 
     store.dispatch(fetchCount.load({ count: 10, maxAge: Infinity }));
@@ -169,6 +174,16 @@ describe('Simple test', () => {
     expect(true).toBeTruthy();
 
     store.dispatch(fetchIdCount.idLoad({ id: '1', count: 5 }));
+
+    await new Promise((resolve) => {
+      simpleFacade
+        .getFetchIdCountState('2')
+        .pipe(first())
+        .subscribe((state) => {
+          expect(state).toBeUndefined();
+          resolve(0);
+        });
+    });
 
     await new Promise((resolve) => {
       simpleFacade.getFetchIdCountState('1').subscribe((state) => {

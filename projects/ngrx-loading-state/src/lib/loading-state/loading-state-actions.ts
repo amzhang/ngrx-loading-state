@@ -10,7 +10,6 @@ import {
 } from './loading-state-functions';
 import {
   FailureAction,
-  INITIAL_LOADING_STATE,
   LoadAction,
   LoadingActionsReducerTypes,
   LoadingState,
@@ -205,7 +204,7 @@ export class LoadingActions<
   private getLoadingState(loadingStates: Readonly<LoadingStates>): Readonly<LoadingState> {
     // We should not be modifying the state without going via the reducer, hence
     // returning the immutable "init" object.
-    return loadingStates[this.key] || INITIAL_LOADING_STATE;
+    return loadingStates[this.key];
   }
 
   private setState(

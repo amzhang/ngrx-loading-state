@@ -6,7 +6,9 @@ export function filterLoading<T>(
 ): UnaryFunction<Observable<T>, Observable<T>> {
   return pipe(
     withLatestFrom(loadingState$),
-    filter(([_, loadingState]: [T, LoadingStateBase]) => loadingState.issueFetch),
+    filter(
+      ([_, loadingState]: [T, LoadingStateBase]) => loadingState == null || loadingState.issueFetch
+    ),
     map(([action, _]: [T, LoadingStateBase]) => action)
   );
 }

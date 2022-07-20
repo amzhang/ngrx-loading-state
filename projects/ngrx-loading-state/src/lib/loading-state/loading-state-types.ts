@@ -54,20 +54,6 @@ export interface LoadingStates {
   [key: string]: LoadingState;
 }
 
-export const INITIAL_LOADING_STATE_BASE: LoadingStateBase = Object.freeze({
-  loading: false,
-  success: false,
-  issueFetch: false,
-  errorHandlerState: ErrorHandlerState.INIT,
-  successTimestamp: undefined,
-  error: undefined
-});
-
-export const INITIAL_LOADING_STATE: LoadingState = Object.freeze({
-  type: LOADING_STATE,
-  ...INITIAL_LOADING_STATE_BASE
-} as const);
-
 export interface WithLoadingStatesOnly {
   loadingStates: LoadingStates;
 }
