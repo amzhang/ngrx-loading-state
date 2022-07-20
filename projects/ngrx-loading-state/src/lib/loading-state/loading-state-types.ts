@@ -1,13 +1,17 @@
+import { ActionCreator, Creator, ReducerTypes } from '@ngrx/store';
+
+export const MAX_AGE_LATEST = 0;
+
 export enum ErrorHandlerState {
   INIT = 'INIT',
   GLOBAL = 'GLOBAL',
   LOCAL = 'LOCAL'
 }
 
+export type OnState<State> = State extends infer S ? S : never;
+
 // TODO Make this generic
 export type LoadingStateError = any;
-
-export const LOADING_STATE = 'LOADING_STATE' as const;
 
 export interface LoadingStateBase {
   loading: boolean; // Api is loading
@@ -15,8 +19,10 @@ export interface LoadingStateBase {
   issueFetch: boolean; // true if we should issue a fetch
   errorHandlerState: ErrorHandlerState;
   successTimestamp: number | null; // Millisecond unix timestamp of when data is loaded. Date.now()
-  error: LoadingStateError; // Api returned error
+  error: LoadingStateError | null; // Api returned error
 }
+
+export const LOADING_STATE = 'LOADING_STATE' as const;
 
 export interface LoadingState extends LoadingStateBase {
   type: typeof LOADING_STATE; // For dynamic type checking
@@ -37,4 +43,31 @@ export interface LoadAction {
 
 export interface FailureAction {
   error?: LoadingStateError;
+}
+
+export type LoadingActionsReducerTypes<State> = ReducerTypes<
+  State,
+  ActionCreator<string, Creator<any[], object>>[]
+>;
+
+export interface LoadingStates {
+  [key: string]: LoadingState;
+}
+
+export const INITIAL_LOADING_STATE_BASE: LoadingStateBase = Object.freeze({
+  loading: false,
+  success: false,
+  issueFetch: false,
+  errorHandlerState: ErrorHandlerState.INIT,
+  successTimestamp: null,
+  error: null
+});
+
+export const INITIAL_LOADING_STATE: LoadingState = Object.freeze({
+  type: LOADING_STATE,
+  ...INITIAL_LOADING_STATE_BASE
+} as const);
+
+export interface WithLoadingStatesOnly {
+  loadingStates: LoadingStates;
 }

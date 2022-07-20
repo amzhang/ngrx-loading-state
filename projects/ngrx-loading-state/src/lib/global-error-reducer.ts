@@ -1,5 +1,10 @@
 import { ActionReducer, MetaReducer } from '@ngrx/store';
-import { ErrorHandlerState, FailureAction, LoadingState, LOADING_STATE } from './loading-state';
+import {
+  ErrorHandlerState,
+  FailureAction,
+  LoadingState,
+  LOADING_STATE
+} from './loading-state/loading-state-types';
 import { lodash } from './lodash';
 
 export type ErrorHandler = (failureAction: FailureAction, state: LoadingState) => void;

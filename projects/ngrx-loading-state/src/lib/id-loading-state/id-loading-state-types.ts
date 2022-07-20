@@ -1,5 +1,9 @@
-import { FailureAction, LoadAction, LoadingStateBase } from './loading-state';
-import { INITIAL_LOADING_STATE_BASE } from './loading-state-types';
+import {
+  FailureAction,
+  INITIAL_LOADING_STATE_BASE,
+  LoadAction,
+  LoadingStateBase
+} from '../loading-state/loading-state-types';
 
 export const ID_LOADING_STATE = 'ID_LOADING_STATE' as const;
 
@@ -27,3 +31,15 @@ export const INITIAL_ID_LOADING_STATE: IdLoadingState = Object.freeze({
   type: ID_LOADING_STATE,
   id: null
 } as const);
+
+export interface IdLoadingStateMap {
+  [key: Id]: IdLoadingState;
+}
+
+export interface IdLoadingStates {
+  [key: string]: IdLoadingStateMap;
+}
+
+export interface WithIdLoadingStatesOnly {
+  idLoadingStates: IdLoadingStates;
+}

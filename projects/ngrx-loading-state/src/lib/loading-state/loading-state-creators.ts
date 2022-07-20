@@ -1,9 +1,13 @@
 import { createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
-import { FailureAction, LoadAction } from './loading-state';
+import { NoIntersection } from '../utils';
 import { LoadingActions } from './loading-state-actions';
 import { actionFactory } from './loading-state-functions';
-import { LoadingStates, WithLoadingStates } from './loading-state-types';
-import { NoIntersection } from './utils';
+import {
+  FailureAction,
+  LoadAction,
+  LoadingStates,
+  WithLoadingStatesOnly
+} from './loading-state-types';
 
 // These classes are basically serving the same purpose as props<T> in createAction() where it
 // just holds the type and allows you to name the class to make it easier to read. The alternative
@@ -59,7 +63,7 @@ export function createLoadingActions<
   });
 }
 
-export function createLoadingStatesSelector<State extends WithLoadingStates>(
+export function createLoadingStatesSelector<State extends WithLoadingStatesOnly>(
   featureSelector: MemoizedSelector<object, State, DefaultProjectorFn<State>>
 ): MemoizedSelector<object, LoadingStates, DefaultProjectorFn<LoadingStates>> {
   return createSelector(featureSelector, (state) => {

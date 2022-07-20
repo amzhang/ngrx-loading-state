@@ -1,8 +1,12 @@
 import { ActionCreatorProps, createAction, NotAllowedCheck, props } from '@ngrx/store';
 import { Action, ActionCreator, TypedAction } from '@ngrx/store/src/models';
-import { ErrorHandlerState, FailureAction, LoadAction, LoadingStateBase } from './loading-state';
-import { WithLoadingStates } from './loading-state-types';
-import { lodash } from './lodash';
+import { lodash } from '../lodash';
+import {
+  ErrorHandlerState,
+  FailureAction,
+  LoadAction,
+  LoadingStateBase
+} from './loading-state-types';
 
 export function shouldIssueFetch(
   oldState: Readonly<LoadingStateBase>,
@@ -64,13 +68,6 @@ export function actionFactory<T extends object>(type: string): ActionFactoryResu
   // TODO: https://lifeready.atlassian.net/browse/LIFE-481
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return createAction(type, props<any>() as ActionCreatorProps<T> & NotAllowedCheck<T>);
-}
-
-export function initialise(): WithLoadingStates {
-  return {
-    loadingStates: {},
-    idLoadingStates: {}
-  };
 }
 
 export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {

@@ -2,13 +2,6 @@ import { createSelector, DefaultProjectorFn, MemoizedSelector, on } from '@ngrx/
 import { Action, TypedAction } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
-  FailureAction,
-  LoadAction,
-  LoadingState,
-  LoadingStateBase,
-  LOADING_STATE
-} from './loading-state';
-import {
   ActionFactoryResult,
   cloneLoadingStateBase,
   getNewFailureState,
@@ -16,11 +9,15 @@ import {
   getNewSuccessState
 } from './loading-state-functions';
 import {
+  FailureAction,
   INITIAL_LOADING_STATE,
+  LoadAction,
   LoadingActionsReducerTypes,
+  LoadingState,
+  LoadingStateBase,
   LoadingStates,
-  OnState,
-  WithLoadingStates
+  LOADING_STATE,
+  OnState
 } from './loading-state-types';
 
 export class LoadingActions<
@@ -98,7 +95,7 @@ export class LoadingActions<
    * @param options.onFailure On failure action, should return a new copy of the state.
    * @returns A tuple of `on()` instances that handles load, success, failure actions in this order.
    */
-  reducer<State extends WithLoadingStates>(options?: {
+  reducer<State extends { loadingStates: LoadingStates }>(options?: {
     onLoad?: (
       state: OnState<State>,
       action: LoadAction & LoadPayloadType & TypedAction<string>
