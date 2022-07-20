@@ -171,13 +171,16 @@ describe('Simple test', () => {
   });
 
   it('should test id load', async () => {
-    expect(true).toBeTruthy();
-
     store.dispatch(fetchIdCount.idLoad({ id: '1', count: 5 }));
+    store.dispatch(fetchIdCount.idLoad({ id: '2', count: 10 }));
+    // This will issue an API call
+    store.dispatch(fetchIdCount.idLoad({ id: '1', count: 15 }));
+    // This will be ignored
+    store.dispatch(fetchIdCount.idLoad({ id: '2', count: 20, maxAge: 1000 }));
 
     await new Promise((resolve) => {
       simpleFacade
-        .getFetchIdCountState('2')
+        .getFetchIdCountState('3')
         .pipe(first())
         .subscribe((state) => {
           expect(state).toBeUndefined();
@@ -196,7 +199,23 @@ describe('Simple test', () => {
 
     await new Promise((resolve) => {
       simpleFacade.getIdCount('1').subscribe((idCount) => {
-        expect(idCount?.count).toBe(5);
+        expect(idCount?.count).toBe(15);
+        resolve(0);
+      });
+    });
+
+    await new Promise((resolve) => {
+      simpleFacade.getFetchIdCountState('2').subscribe((state) => {
+        if (!state.loading) {
+          expect(state.error).toBeUndefined();
+          resolve(0);
+        }
+      });
+    });
+
+    await new Promise((resolve) => {
+      simpleFacade.getIdCount('2').subscribe((idCount) => {
+        expect(idCount?.count).toBe(10);
         resolve(0);
       });
     });
