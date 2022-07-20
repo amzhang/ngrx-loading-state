@@ -1,6 +1,6 @@
 import { WithLoadingStates } from './types';
 
-export function initialise(): WithLoadingStates {
+export function getInitialState(): WithLoadingStates {
   return {
     loadingStates: {},
     idLoadingStates: {}

@@ -216,7 +216,7 @@ export class LoadingActions<
     action: Action & LoadAction,
     loadingStates: Readonly<LoadingStates>
   ): Readonly<LoadingStates> {
-    const oldState = cloneLoadingStateBase(loadingStates[this.key] || INITIAL_LOADING_STATE);
+    const oldState = cloneLoadingStateBase(this.getLoadingState(loadingStates));
     const newState = getNewState(action, oldState);
 
     if (newState) {

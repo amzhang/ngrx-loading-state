@@ -108,7 +108,7 @@ export function getNewLoadState(
         issueFetch,
         errorHandlerState,
         successTimestamp: oldState.successTimestamp,
-        error: null
+        error: undefined
       }
     : {
         // Deliberately avoiding the use of the spread operator, i.e. no ...oldState
@@ -136,7 +136,7 @@ export function getNewSuccessState(): Readonly<LoadingStateBase> {
     // each load action will set this again, so here we just set it back to default.
     errorHandlerState: ErrorHandlerState.INIT,
     successTimestamp: Date.now(),
-    error: null
+    error: undefined
   };
 
   return ret;

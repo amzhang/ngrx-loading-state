@@ -8,7 +8,8 @@ import {
   MAX_AGE_LATEST
 } from '../public-api';
 
-import { fetchCount } from './simple.actions';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { fetchCount, fetchIdCount } from './simple.actions';
 import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';
 import { simpleReducer, SIMPLE_FEATURE_KEY } from './simple.reducer';
@@ -39,7 +40,13 @@ describe('Simple test', () => {
         StoreModule.forRoot({}),
         StoreModule.forFeature(SIMPLE_FEATURE_KEY, simpleReducer),
         EffectsModule.forRoot(),
-        EffectsModule.forFeature([SimpleEffects])
+        EffectsModule.forFeature([SimpleEffects]),
+        StoreDevtoolsModule.instrument({
+          serialize: {
+            // This allows the contents of non-serializable types such as "set" and "map" to be displayed.
+            options: true
+          }
+        })
       ]
     });
 
@@ -48,14 +55,12 @@ describe('Simple test', () => {
   });
 
   it('should fetch count', async () => {
-    expect(true).toBeTruthy();
-
     store.dispatch(fetchCount.load({ count: 5 }));
 
     await new Promise((resolve) => {
       simpleFacade.getFetchCountState().subscribe((state) => {
         if (!state.loading) {
-          expect(state.error).toBeNull();
+          expect(state.error).toBeUndefined();
           resolve(0);
         }
       });
@@ -158,5 +163,27 @@ describe('Simple test', () => {
     const apiCallsAfter = SimpleEffects.apiCalls;
 
     expect(apiCallsAfter - apiCallsBefore).toBe(2);
+  });
+
+  it('should test id load', async () => {
+    expect(true).toBeTruthy();
+
+    store.dispatch(fetchIdCount.idLoad({ id: '1', count: 5 }));
+
+    await new Promise((resolve) => {
+      simpleFacade.getFetchIdCountState('1').subscribe((state) => {
+        if (!state.loading) {
+          expect(state.error).toBeUndefined();
+          resolve(0);
+        }
+      });
+    });
+
+    await new Promise((resolve) => {
+      simpleFacade.getIdCount('1').subscribe((idCount) => {
+        expect(idCount?.count).toBe(5);
+        resolve(0);
+      });
+    });
   });
 });

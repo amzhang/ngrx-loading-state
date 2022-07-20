@@ -18,8 +18,8 @@ export interface LoadingStateBase {
   success: boolean; // Api returned successfully
   issueFetch: boolean; // true if we should issue a fetch
   errorHandlerState: ErrorHandlerState;
-  successTimestamp: number | null; // Millisecond unix timestamp of when data is loaded. Date.now()
-  error: LoadingStateError | null; // Api returned error
+  successTimestamp?: number; // Millisecond unix timestamp of when data is loaded. Date.now()
+  error?: LoadingStateError; // Api returned error
 }
 
 export const LOADING_STATE = 'LOADING_STATE' as const;
@@ -59,8 +59,8 @@ export const INITIAL_LOADING_STATE_BASE: LoadingStateBase = Object.freeze({
   success: false,
   issueFetch: false,
   errorHandlerState: ErrorHandlerState.INIT,
-  successTimestamp: null,
-  error: null
+  successTimestamp: undefined,
+  error: undefined
 });
 
 export const INITIAL_LOADING_STATE: LoadingState = Object.freeze({

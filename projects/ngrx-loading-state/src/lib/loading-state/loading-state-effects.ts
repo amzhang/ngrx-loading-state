@@ -1,12 +1,12 @@
 import { filter, map, Observable, pipe, UnaryFunction, withLatestFrom } from 'rxjs';
-import { LoadingState } from './loading-state-types';
+import { LoadingStateBase } from './loading-state-types';
 
 export function filterLoading<T>(
-  loadingState$: Observable<LoadingState>
+  loadingState$: Observable<LoadingStateBase>
 ): UnaryFunction<Observable<T>, Observable<T>> {
   return pipe(
     withLatestFrom(loadingState$),
-    filter(([_, loadingState]: [T, LoadingState]) => loadingState.issueFetch),
-    map(([action, _]: [T, LoadingState]) => action)
+    filter(([_, loadingState]: [T, LoadingStateBase]) => loadingState.issueFetch),
+    map(([action, _]: [T, LoadingStateBase]) => action)
   );
 }

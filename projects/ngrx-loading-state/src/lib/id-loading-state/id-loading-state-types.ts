@@ -7,7 +7,7 @@ import {
 
 export const ID_LOADING_STATE = 'ID_LOADING_STATE' as const;
 
-export type Id = string | number;
+export type Id = string;
 
 export interface IdLoadingState extends LoadingStateBase {
   type: typeof ID_LOADING_STATE; // For dynamic type checking
