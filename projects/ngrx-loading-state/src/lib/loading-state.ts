@@ -14,8 +14,8 @@ export interface LoadingStateBase {
   success: boolean; // Api returned successfully
   issueFetch: boolean; // true if we should issue a fetch
   errorHandlerState: ErrorHandlerState;
-  successTimestamp?: number; // Millisecond unix timestamp of when data is loaded. Date.now()
-  error?: LoadingStateError; // Api returned error
+  successTimestamp: number | null; // Millisecond unix timestamp of when data is loaded. Date.now()
+  error: LoadingStateError; // Api returned error
 }
 
 export interface LoadingState extends LoadingStateBase {

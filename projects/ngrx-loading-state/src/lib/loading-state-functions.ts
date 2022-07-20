@@ -1,11 +1,11 @@
 import { ActionCreatorProps, createAction, NotAllowedCheck, props } from '@ngrx/store';
-import { ActionCreator, TypedAction } from '@ngrx/store/src/models';
-import { ErrorHandlerState, LoadAction, LoadingState } from './loading-state';
+import { Action, ActionCreator, TypedAction } from '@ngrx/store/src/models';
+import { ErrorHandlerState, FailureAction, LoadAction, LoadingStateBase } from './loading-state';
 import { WithLoadingStates } from './loading-state-types';
 import { lodash } from './lodash';
 
 export function shouldIssueFetch(
-  oldState: Readonly<LoadingState>,
+  oldState: Readonly<LoadingStateBase>,
   action: Readonly<LoadAction>
 ): boolean {
   const maxAge = action?.maxAge;
@@ -24,7 +24,7 @@ export function shouldIssueFetch(
 }
 
 export function getErrorHandler(
-  oldState: Readonly<LoadingState>,
+  oldState: Readonly<LoadingStateBase>,
   action: Readonly<LoadAction>,
   issueFetch: boolean
 ): ErrorHandlerState {
@@ -44,15 +44,6 @@ export function getErrorHandler(
   }
 
   return oldState.errorHandlerState;
-}
-
-export function distinctState(
-  oldState: Readonly<LoadingState>,
-  newState: Readonly<LoadingState>
-): Readonly<LoadingState> {
-  // Return the same object reference if the state has not changed. This
-  // avoids unnecessary firing of selectors
-  return lodash.isEqual(oldState, newState) ? oldState : newState;
 }
 
 export type ActionFactoryResult<T extends object> = ActionCreator<
@@ -79,5 +70,92 @@ export function initialise(): WithLoadingStates {
   return {
     loadingStates: {},
     idLoadingStates: {}
+  };
+}
+
+export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {
+  // Since the oldState could contain extra fields, we can't to make sure we exclude other fields in the
+  // comparison. Use Required to make sure we don't miss any fields.
+  // Would be better if we can iterate all the fields in the LoadingStateBase interface. But unless we change
+  // LoadingStateBase to a class, it doesn't seem likely. Below is verbose, but at least it should capture all
+  // the fields.
+
+  // Using Required<> to ensure we don't miss any fields from LoadingStateBase.
+  const ret: Required<LoadingStateBase> = lodash.pick(src as Required<LoadingStateBase>, [
+    'loading',
+    'success',
+    'issueFetch',
+    'errorHandlerState',
+    'successTimestamp',
+    'error'
+  ]);
+
+  return ret;
+}
+
+export function getNewLoadState(
+  action: LoadAction & Action,
+  oldState: LoadingStateBase
+): Readonly<LoadingStateBase> | null {
+  const issueFetch = shouldIssueFetch(oldState, action);
+
+  const errorHandlerState = getErrorHandler(oldState, action, issueFetch);
+
+  // Note that even if issueFetch is false, the errorHandlerState could still change. So we should
+  // compare every field from old to new state.
+
+  const newState: LoadingStateBase = issueFetch
+    ? {
+        loading: true,
+        success: false,
+        issueFetch,
+        errorHandlerState,
+        successTimestamp: oldState.successTimestamp,
+        error: null
+      }
+    : {
+        // Deliberately avoiding the use of the spread operator, i.e. no ...oldState
+        // because we want to be 100% explicit about the states we are setting. Using ...oldState
+        // makes it difficult to read. Being explicit means we need to specify all fields
+        // from LoadingState. If we ever add more states to LoadingState the typing will catch any
+        // missing states. There's also just the loading(), success(), failure() functions
+        // so not too cumbersome to be explicit.
+        loading: oldState.loading,
+        success: oldState.success,
+        issueFetch,
+        errorHandlerState,
+        successTimestamp: oldState.successTimestamp,
+        error: oldState.error
+      };
+
+  return lodash.isEqual(oldState, newState) ? null : newState;
+}
+
+export function getNewSuccessState(): Readonly<LoadingStateBase> {
+  const ret: LoadingStateBase = {
+    loading: false,
+    success: true,
+    issueFetch: false,
+    // each load action will set this again, so here we just set it back to default.
+    errorHandlerState: ErrorHandlerState.INIT,
+    successTimestamp: Date.now(),
+    error: null
+  };
+
+  return ret;
+}
+
+export function getNewFailureState(
+  action: FailureAction & Action,
+  oldState: LoadingStateBase
+): Readonly<LoadingStateBase> {
+  return {
+    loading: false,
+    success: false,
+    issueFetch: false,
+    // Leading this as is for the global error handler to check.
+    errorHandlerState: oldState.errorHandlerState,
+    successTimestamp: oldState.successTimestamp,
+    error: action.error
   };
 }

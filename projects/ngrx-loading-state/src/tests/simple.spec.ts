@@ -55,7 +55,7 @@ describe('Simple test', () => {
     await new Promise((resolve) => {
       simpleFacade.getFetchCountState().subscribe((state) => {
         if (!state.loading) {
-          expect(state.error).toBeUndefined();
+          expect(state.error).toBeNull();
           resolve(0);
         }
       });
