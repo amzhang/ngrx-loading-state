@@ -3,13 +3,13 @@ import { Action, createSelector, DefaultProjectorFn, MemoizedSelector, on } from
 import { TypedAction } from '@ngrx/store/src/models';
 import { catchError, groupBy, mergeMap, Observable, of, pipe, UnaryFunction } from 'rxjs';
 import {
-  ActionFactoryResult,
   cloneLoadingStateBase,
   getNewFailureState,
   getNewLoadState,
   getNewSuccessState
 } from '../loading-state/loading-state-functions';
 import {
+  ActionFactoryResult,
   LoadingActionsReducerTypes,
   LoadingStateBase,
   OnState
@@ -26,6 +26,10 @@ import {
   WithIdLoadingStatesOnly
 } from './id-loading-state-types';
 
+/**
+ * IdLoadingAction is similar to LoadingAction with the difference that it's parameterized on a user provided ID.
+ *
+ */
 export class IdLoadingActions<
   LoadPayloadType extends object,
   SuccessPayloadType extends object,
@@ -254,8 +258,8 @@ export class IdLoadingActions<
     action: Action & (IdLoadAction | IdSuccessAction | IdFailureAction),
     idLoadingStates: Readonly<IdLoadingStates>
   ): Readonly<IdLoadingStates> {
-    const oldState = cloneLoadingStateBase(idLoadingStates[this.key]?.[action.id]);
-    const newState = getNewState(action, oldState);
+    const currentState = cloneLoadingStateBase(idLoadingStates[this.key]?.[action.id]);
+    const newState = getNewState(action, currentState);
 
     if (newState) {
       // Return new reference only when the state has changed.

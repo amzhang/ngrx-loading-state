@@ -2,13 +2,13 @@ import { createSelector, DefaultProjectorFn, MemoizedSelector, on } from '@ngrx/
 import { Action, TypedAction } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
-  ActionFactoryResult,
   cloneLoadingStateBase,
   getNewFailureState,
   getNewLoadState,
   getNewSuccessState
 } from './loading-state-functions';
 import {
+  ActionFactoryResult,
   FailureAction,
   LoadAction,
   LoadingActionsReducerTypes,
@@ -19,11 +19,19 @@ import {
   OnState
 } from './loading-state-types';
 
+/**
+ * This class bundles up a set of load, success, and failure actions. It contains helpers to create
+ * reducers for these actions and helpers for creating selectors.
+ *
+ * Do not use this class directly, use the createLoadingActions() helper function.
+ *
+ */
 export class LoadingActions<
   LoadPayloadType extends object,
   SuccessPayloadType extends object,
   FailurePayloadType extends object
 > {
+  /** The actions the user can dispatch */
   readonly load: ActionFactoryResult<LoadAction & LoadPayloadType>;
   readonly success: ActionFactoryResult<SuccessPayloadType>;
   readonly failure: ActionFactoryResult<FailureAction & FailurePayloadType>;
@@ -43,36 +51,60 @@ export class LoadingActions<
   // ----------------------------------------------------------------------------
   // Typing
   // ----------------------------------------------------------------------------
+  /**
+   * Type guard to test if action is of type LoadingActions.load.
+   *
+   * @param action Any ngrx action
+   * @returns True if action if of type LoadingActions.load
+   */
   instanceOfLoad(
     action: Action
   ): action is ReturnType<ActionFactoryResult<LoadAction & LoadPayloadType>> {
     return action.type === this.load.type;
   }
 
+  /**
+   * Type guard to test if action is of type LoadingActions.success.
+   *
+   * @param action Any ngrx action
+   * @returns True if action if of type LoadingActions.success
+   */
   instanceOfSuccess(action: Action): action is ReturnType<ActionFactoryResult<SuccessPayloadType>> {
     return action.type === this.success.type;
   }
 
+  /**
+   * Type guard to test if action is of type LoadingActions.failure.
+   *
+   * @param action Any ngrx action
+   * @returns True if action if of type LoadingActions.failure
+   */
   instanceOfFailure(
     action: Action
   ): action is ReturnType<ActionFactoryResult<FailureAction & FailurePayloadType>> {
     return action.type === this.failure.type;
   }
+
   // ------------------------------------------------------------------------------------------------
   // Reducer
   // ------------------------------------------------------------------------------------------------
   /**
    * Creates reducers for the load, success, failure actions.
    *
-   * Usage:
+   * @param options.onLoad Call back when action is LoadAction. Return new copy of state if state needs to change.
+   * @param options.onSuccess Call back when action is SuccessAction. Return new copy of state if state needs to change.
+   * @param options.onFailure Call back when action is FailureAction. Return new copy of state if state needs to change.
+   * @returns A tuple of "on()" instances that handles load, success, failure actions in this order.
+   * @example
    *   export const reducer = createReducer(
    *     initialState,
-   *                                       // (2)
-   *     ...VaultActions.fetchVaultId.reducer<VaultState>({
-   *                                     // (1)
-   *       onSuccess: (state, { vaultId }): VaultState => {
-   *         return { ...state, vaultId };
-   *       }
+   *                    // Note: (1)
+   *     ...fetchItem.reducer<ItemState>({
+   *       onSuccess: (state, { item }): ItemState => {
+   *         return { ...state, item };
+   *       },
+   *       // You can also customise what happens for LoadAction and FailureAction through onLoad and onFailure.
+   *       // But most of the time, there's nothing to do for those. They are automatically handled by the fetchItem.reducer
    *     }),
    *   );
    *
@@ -89,10 +121,6 @@ export class LoadingActions<
    * (2): Given that there are explicity return types on the onLoad, onSuccess, onFailure functions
    * it should be possible to infer the type of the state here. But can't figure out how.
    *
-   * @param options.onLoad On load action, should return a new copy of the state.
-   * @param options.onSuccess On success action, should return a new copy of the state.
-   * @param options.onFailure On failure action, should return a new copy of the state.
-   * @returns A tuple of `on()` instances that handles load, success, failure actions in this order.
    */
   reducer<State extends { loadingStates: LoadingStates }>(options?: {
     onLoad?: (
@@ -141,6 +169,26 @@ export class LoadingActions<
     ];
   }
 
+  /**
+   * Catches errors in effect.
+   *
+   * @returns rxjs operator that emits a FailureAction.
+   * @example
+   *
+   *  fetchCount$ = createEffect(() => {
+   *    return this.actions$.pipe(
+   *      ofType(fetchCount.load),
+   *      filterLoading(this.store.select(fetchCountSelectors.state)),
+   *      switchMap((action) => {
+   *        return apiCAll().pipe(
+   *          map(item => fetchCount.success(item)),
+   *          fetchCount.catchError()
+   *        );
+   *      })
+   *    );
+   *  });
+   *
+   */
   catchError(): ReturnType<typeof catchError> {
     return catchError((error) => {
       return of(
@@ -156,18 +204,35 @@ export class LoadingActions<
   // Selectors
   // ----------------------------------------------------------------------------
   /**
-   * Returns a map of selectors for loading, success, error, and the entire state.
-   * The advantage of doing it in a bundle is that we can share the result of createStateSelector(),
-   * if we separated into individual functions, each function might need to call createStateSelector()
-   * to create a new instance of the selector. We can't cache any created selectors because will cause
-   * memory leak since the cached references are always help in this class and hence does not get released.
+   * Returns a map of selectors for loading, success, error, and the entire loading state. Similar to the ngrx entities adaptor.
+   *
+   * Design: The advantage of doing it in a bundle is that we can share the result of createStateSelector().
+   * If we had separate individual functions, each function might need to call createStateSelector()
+   * to create a new instance of the selector. We can't cache any created selectors because that will cause
+   * a memory leak since the cached references are always held in this class and hence does not get released.
+   *
    * @param selectLoadingStates Selector that returns the loadingStats of the feature slice. You can use createLoadingStatesSelector()
    *   to create it.
    * @returns A collection of selectors
    *   state: the LoadingState
    *   loading: True if loading
    *   success: True if last load was successful
-   *   error: LrError2 object if previous loading failed.
+   *   error: any errors from the last API call.
+   * @example
+   *  // The feature slice selector. Standard ngrx stuff.
+   *  const selectState = createFeatureSelector<SimpleState>(SIMPLE_FEATURE_KEY);
+   *
+   *  // Selector that selects the loadingStates field from the global store. The createLoadingStatesSelector()
+   *  // is provided as a part of this lib as well.
+   *  const selectLoadingStates = createLoadingStatesSelector(selectState);
+   *
+   *  // Create the selectors related to the fetchItem loading state.
+   *  export const fetchItemSelectors = fetchItem.createSelectors(selectLoadingStates);
+   *
+   *  // You can then observe the loading states:
+   *  this.store.select(fetchItemSelectors.state); // The entire LoadingState
+   *  this.store.select(fetchItemSelectors.success); // The boolean success flag
+   *  this.store.select(fetchItemSelectors.loading); // The boolean loading flag
    *
    */
   createSelectors(
@@ -215,8 +280,10 @@ export class LoadingActions<
     action: Action & LoadAction,
     loadingStates: Readonly<LoadingStates>
   ): Readonly<LoadingStates> {
-    const oldState = cloneLoadingStateBase(this.getLoadingState(loadingStates));
-    const newState = getNewState(action, oldState);
+    // We work with LoadingStateBase here to be generic. The idLoadingActions also
+    // use these functions.
+    const currentState = cloneLoadingStateBase(this.getLoadingState(loadingStates));
+    const newState = getNewState(action, currentState);
 
     if (newState) {
       // Return new reference only when the state has changed.
