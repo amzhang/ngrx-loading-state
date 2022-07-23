@@ -1,18 +1,16 @@
 import { ActionReducer, MetaReducer } from '@ngrx/store';
-import { ID_LOADING_STATE } from './id-loading-state/id-loading-state-types';
 import {
   ErrorHandlerState,
   FailureAction,
-  LoadingStateBase,
-  LOADING_STATE
+  LoadingState
 } from './loading-state/loading-state-types';
 import { lodash } from './lodash';
 
-export type ErrorHandler = (failureAction: FailureAction, state: LoadingStateBase) => void;
+export type ErrorHandler = (failureAction: FailureAction, state: LoadingState) => void;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function instanceOfLoadingStateBase(state: any): state is LoadingStateBase {
-  return state?.type == LOADING_STATE || state?.type == ID_LOADING_STATE;
+function instanceOfLoadingState(state: any): state is LoadingState {
+  return (state as LoadingState)?.isLoadingState;
 }
 
 /**
@@ -29,7 +27,7 @@ function processState(options: {
 }): void {
   const { state, failureAction, errorHandler } = options;
 
-  if (instanceOfLoadingStateBase(state)) {
+  if (instanceOfLoadingState(state)) {
     if (state.error && state.errorHandlerState == ErrorHandlerState.GLOBAL) {
       // Passing back new reference from this reducer is not unnecessary since for each reducer pass
       // all unhandled global errors are handled and errorHandlerState set to ErrorHandlerState.INIT to

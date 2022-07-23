@@ -3,7 +3,7 @@ import { Action, createSelector, DefaultProjectorFn, MemoizedSelector, on } from
 import { TypedAction } from '@ngrx/store/src/models';
 import { catchError, groupBy, mergeMap, Observable, of, pipe, UnaryFunction } from 'rxjs';
 import {
-  cloneLoadingStateBase,
+  cloneLoadingState,
   combineLoadingStates,
   getNewFailureState,
   getNewLoadState,
@@ -12,7 +12,7 @@ import {
 import {
   ActionFactoryResult,
   LoadingActionsReducerTypes,
-  LoadingStateBase,
+  LoadingState,
   OnState
 } from '../loading-state/loading-state-types';
 import {
@@ -23,7 +23,6 @@ import {
   IdLoadingStateMap,
   IdLoadingStates,
   IdSuccessAction,
-  ID_LOADING_STATE,
   WithIdLoadingStatesOnly
 } from './id-loading-state-types';
 
@@ -263,12 +262,12 @@ export class IdLoadingActions<
   private setState(
     getNewState: (
       action: Action & (IdLoadAction | IdSuccessAction | IdFailureAction),
-      oldLoadingState: Readonly<LoadingStateBase>
-    ) => Readonly<LoadingStateBase> | null,
+      oldLoadingState: Readonly<LoadingState>
+    ) => Readonly<LoadingState> | null,
     action: Action & (IdLoadAction | IdSuccessAction | IdFailureAction),
     idLoadingStates: Readonly<IdLoadingStates>
   ): Readonly<IdLoadingStates> {
-    const currentState = cloneLoadingStateBase(idLoadingStates[this.key]?.[action.id]);
+    const currentState = cloneLoadingState(idLoadingStates[this.key]?.[action.id]);
     const newState = getNewState(action, currentState);
 
     if (newState) {
@@ -277,7 +276,7 @@ export class IdLoadingActions<
         ...idLoadingStates,
         [this.key]: {
           ...idLoadingStates[this.key],
-          [action.id]: { ...newState, type: ID_LOADING_STATE, id: action.id }
+          [action.id]: { ...newState, isIdLoadingState: true, id: action.id }
         }
       };
     } else {

@@ -2,7 +2,7 @@ import { createSelector, DefaultProjectorFn, MemoizedSelector, on } from '@ngrx/
 import { Action, TypedAction } from '@ngrx/store/src/models';
 import { catchError, of } from 'rxjs';
 import {
-  cloneLoadingStateBase,
+  cloneLoadingState,
   getNewFailureState,
   getNewLoadState,
   getNewSuccessState
@@ -13,9 +13,7 @@ import {
   LoadAction,
   LoadingActionsReducerTypes,
   LoadingState,
-  LoadingStateBase,
   LoadingStates,
-  LOADING_STATE,
   OnState
 } from './loading-state-types';
 
@@ -275,14 +273,14 @@ export class LoadingActions<
   private setState(
     getNewState: (
       action: Action & LoadAction,
-      oldLoadingState: Readonly<LoadingStateBase>
-    ) => Readonly<LoadingStateBase> | null,
+      oldLoadingState: Readonly<LoadingState>
+    ) => Readonly<LoadingState> | null,
     action: Action & LoadAction,
     loadingStates: Readonly<LoadingStates>
   ): Readonly<LoadingStates> {
     // We work with LoadingStateBase here to be generic. The idLoadingActions also
     // use these functions.
-    const currentState = cloneLoadingStateBase(this.getLoadingState(loadingStates));
+    const currentState = cloneLoadingState(this.getLoadingState(loadingStates));
     const newState = getNewState(action, currentState);
 
     if (newState) {
@@ -290,8 +288,7 @@ export class LoadingActions<
       return {
         ...loadingStates,
         [this.key]: {
-          ...newState,
-          type: LOADING_STATE
+          ...newState
         }
       };
     } else {

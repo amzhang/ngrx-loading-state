@@ -7,7 +7,7 @@ import {
   ErrorHandlerState,
   FailureAction,
   LoadAction,
-  LoadingStateBase
+  LoadingState
 } from './loading-state-types';
 
 /**
@@ -18,7 +18,7 @@ import {
  * @returns True if a new API fetch should be issued.
  */
 export function shouldIssueFetch(
-  currentState: Readonly<LoadingStateBase>,
+  currentState: Readonly<LoadingState>,
   action: Readonly<LoadAction>
 ): boolean {
   if (currentState == null) {
@@ -50,7 +50,7 @@ export function shouldIssueFetch(
  * @returns
  */
 export function getErrorHandler(
-  currentState: Readonly<LoadingStateBase>,
+  currentState: Readonly<LoadingState>,
   action: Readonly<LoadAction>,
   issueFetch: boolean
 ): ErrorHandlerState {
@@ -98,13 +98,13 @@ export function actionFactory<T extends object>(type: string): ActionFactoryResu
 }
 
 /**
- * Make a clone of any object that implements the LoadingStateBase interface, but copy over only
- * those fields that are in the LoadingStateBase interface.
+ * Make a clone of any object that implements the LoadingState interface, but copy over only
+ * those fields that are in the LoadingState interface.
  *
- * @param src Any object that implements the LoadingStateBase interface
- * @returns A copy of src with only fields from LoadingStateBase
+ * @param src Any object that implements the LoadingState interface
+ * @returns A copy of src with only fields from LoadingState
  */
-export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {
+export function cloneLoadingState(src: LoadingState): LoadingState {
   // Since the "src" could contain extra fields, we want to make sure we exclude other fields in the
   // comparison. Using Required<> to make sure we don't miss any fields.
   // Would be better if we can iterate all the fields in the LoadingStateBase interface. But unless we change
@@ -115,7 +115,8 @@ export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {
     return src;
   } else {
     // Using Required<> to ensure we don't miss any fields from LoadingStateBase.
-    const ret: Required<LoadingStateBase> = lodash.pick(src as Required<LoadingStateBase>, [
+    const ret: Required<LoadingState> = lodash.pick(src as Required<LoadingState>, [
+      'isLoadingState',
       'loading',
       'success',
       'issueFetch',
@@ -137,14 +138,15 @@ export function cloneLoadingStateBase(src: LoadingStateBase): LoadingStateBase {
  */
 export function getNewLoadState(
   action: LoadAction & Action,
-  currentState: LoadingStateBase
-): Readonly<LoadingStateBase> | null {
+  currentState: LoadingState
+): Readonly<LoadingState> | null {
   const issueFetch = shouldIssueFetch(currentState, action);
 
   const errorHandlerState = getErrorHandler(currentState, action, issueFetch);
 
-  const newState: LoadingStateBase = issueFetch
+  const newState: LoadingState = issueFetch
     ? {
+        isLoadingState: true,
         loading: true,
         success: false,
         issueFetch,
@@ -153,6 +155,7 @@ export function getNewLoadState(
         error: undefined
       }
     : {
+        isLoadingState: true,
         // Deliberately avoiding the use of the spread operator, i.e. no ...currentState
         // because we want to be 100% explicit about the states we are setting. Using ...currentState
         // makes it difficult to read. Being explicit means we need to specify all fields
@@ -175,8 +178,9 @@ export function getNewLoadState(
 /**
  * @returns Always returns a new success state.
  */
-export function getNewSuccessState(): Readonly<LoadingStateBase> {
-  const ret: LoadingStateBase = {
+export function getNewSuccessState(): Readonly<LoadingState> {
+  const ret: LoadingState = {
+    isLoadingState: true,
     loading: false,
     success: true,
     issueFetch: false,
@@ -199,9 +203,10 @@ export function getNewSuccessState(): Readonly<LoadingStateBase> {
  */
 export function getNewFailureState(
   action: FailureAction & Action,
-  currentState: LoadingStateBase
-): Readonly<LoadingStateBase> {
+  currentState: LoadingState
+): Readonly<LoadingState> {
   return {
+    isLoadingState: true,
     loading: false,
     success: false,
     issueFetch: false,
@@ -212,7 +217,7 @@ export function getNewFailureState(
   };
 }
 
-export function combineLoadingStates(loadingStates: LoadingStateBase[]): CombinedLoadingState {
+export function combineLoadingStates(loadingStates: LoadingState[]): CombinedLoadingState {
   return {
     loading: loadingStates.some((state) => !!state?.loading),
     success: loadingStates.every((state) => !!state?.success),

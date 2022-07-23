@@ -20,7 +20,15 @@ export enum ErrorHandlerState {
 // TODO Make this generic
 export type LoadingStateError = any;
 
-export interface LoadingStateBase {
+/**
+ * String constant for dynamic type checking.
+ *
+ * Alternatively, we could use a class instead of interfaces.
+ *
+ */
+export interface LoadingState {
+  /** For dynamic type checking */
+  isLoadingState: true;
   /** API is loading */
   loading: boolean;
   /** Api returned successfully */
@@ -33,18 +41,6 @@ export interface LoadingStateBase {
   successTimestamp?: number;
   /** Last error returned by the API */
   error?: LoadingStateError; // Api returned error
-}
-
-/**
- * String constant for dynamic type checking.
- *
- * Alternatively, we could use a class instead of interfaces.
- *
- */
-export const LOADING_STATE = 'LOADING_STATE' as const;
-
-export interface LoadingState extends LoadingStateBase {
-  type: typeof LOADING_STATE; // For dynamic type checking
 }
 
 export interface LoadAction {
@@ -107,7 +103,7 @@ export interface WithLoadingStatesOnly {
 /**
  * Merging multiple loading states together.
  */
-export type CombinedLoadingState = Pick<LoadingStateBase, 'loading' | 'success' | 'error'>;
+export type CombinedLoadingState = Pick<LoadingState, 'loading' | 'success' | 'error'>;
 
 // ----------------------------------------------------------------
 // Internal use

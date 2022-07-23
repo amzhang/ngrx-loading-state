@@ -5,7 +5,7 @@ import { FailureAction, globalErrorReducerFactory, MAX_AGE_LATEST } from '../pub
 
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { first } from 'rxjs';
-import { LoadingStateBase } from '../lib/loading-state/loading-state-types';
+import { LoadingState } from '../lib/loading-state/loading-state-types';
 import { fetchCount, fetchIdCount } from './simple.actions';
 import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';
@@ -13,9 +13,9 @@ import { simpleReducer, SIMPLE_FEATURE_KEY } from './simple.reducer';
 
 describe('Simple test', () => {
   let globalFailureAction: FailureAction | null = null;
-  let globalFailureState: LoadingStateBase | null = null;
+  let globalFailureState: LoadingState | null = null;
 
-  function errorHandler(failureAction: FailureAction, state: LoadingStateBase) {
+  function errorHandler(failureAction: FailureAction, state: LoadingState) {
     globalFailureAction = failureAction;
     globalFailureState = state;
   }

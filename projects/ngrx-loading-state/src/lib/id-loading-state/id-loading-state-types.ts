@@ -1,11 +1,13 @@
-import { FailureAction, LoadAction, LoadingStateBase } from '../loading-state/loading-state-types';
+import { FailureAction, LoadAction, LoadingState } from '../loading-state/loading-state-types';
 
 export const ID_LOADING_STATE = 'ID_LOADING_STATE' as const;
 
 export type Id = string;
 
-export interface IdLoadingState extends LoadingStateBase {
-  type: typeof ID_LOADING_STATE; // For dynamic type checking
+export interface IdLoadingState extends LoadingState {
+  /** For dynamic type checking */
+  isIdLoadingState: true;
+  /** ID to identify this state */
   id: Id | null;
 }
 
