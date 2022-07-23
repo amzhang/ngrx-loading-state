@@ -11,6 +11,7 @@ export {
   idLoad,
   idSuccess
 } from './lib/id-loading-state/id-loading-state-creators';
+export { IdLoadAction, IdLoadingState } from './lib/id-loading-state/id-loading-state-types';
 export {
   createLoadingActions,
   createLoadingStatesSelector,
@@ -20,6 +21,7 @@ export {
 } from './lib/loading-state/loading-state-creators';
 export { filterLoading } from './lib/loading-state/loading-state-effects';
 export {
+  CombinedLoadingState,
   FailureAction,
   LoadAction,
   LoadingState,
