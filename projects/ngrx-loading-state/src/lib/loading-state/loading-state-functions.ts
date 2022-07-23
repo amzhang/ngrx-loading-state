@@ -3,6 +3,7 @@ import { Action } from '@ngrx/store/src/models';
 import { lodash } from '../lodash';
 import {
   ActionFactoryResult,
+  CombinedLoadingState,
   ErrorHandlerState,
   FailureAction,
   LoadAction,
@@ -208,5 +209,13 @@ export function getNewFailureState(
     errorHandlerState: currentState.errorHandlerState,
     successTimestamp: currentState.successTimestamp,
     error: action.error
+  };
+}
+
+export function combineLoadingStates(loadingStates: LoadingStateBase[]): CombinedLoadingState {
+  return {
+    loading: loadingStates.some((state) => !!state?.loading),
+    success: loadingStates.every((state) => !!state?.success),
+    error: loadingStates.find((state) => !!state?.error)?.error
   };
 }

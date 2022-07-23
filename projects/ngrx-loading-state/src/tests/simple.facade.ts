@@ -32,6 +32,10 @@ export class SimpleFacade {
     return this.store.select(SimpleSelectors.fetchIdCountSelectors.state(id));
   }
 
+  getFetchIdCountCombinedState(): Observable<IdLoadingState> {
+    return this.store.select(SimpleSelectors.fetchIdCountSelectors.combinedState);
+  }
+
   getIdCount(id: Id): Observable<IdCount | undefined> {
     return this.store.select(SimpleSelectors.selectIdCount(id));
   }

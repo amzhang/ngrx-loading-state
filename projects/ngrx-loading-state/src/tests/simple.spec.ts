@@ -180,6 +180,16 @@ describe('Simple test', () => {
 
     await new Promise((resolve) => {
       simpleFacade
+        .getFetchIdCountCombinedState()
+        .pipe(first())
+        .subscribe((state) => {
+          expect(state.loading).toBeTrue();
+          resolve(0);
+        });
+    });
+
+    await new Promise((resolve) => {
+      simpleFacade
         .getFetchIdCountState('3')
         .pipe(first())
         .subscribe((state) => {
@@ -218,6 +228,16 @@ describe('Simple test', () => {
         expect(idCount?.count).toBe(10);
         resolve(0);
       });
+    });
+
+    await new Promise((resolve) => {
+      simpleFacade
+        .getFetchIdCountCombinedState()
+        .pipe(first())
+        .subscribe((state) => {
+          expect(state.loading).toBeFalse();
+          resolve(0);
+        });
     });
   });
 });

@@ -104,6 +104,11 @@ export interface WithLoadingStatesOnly {
   loadingStates: LoadingStates;
 }
 
+/**
+ * Merging multiple loading states together.
+ */
+export type CombinedLoadingState = Pick<LoadingStateBase, 'loading' | 'success' | 'error'>;
+
 // ----------------------------------------------------------------
 // Internal use
 // ----------------------------------------------------------------

@@ -1,0 +1,10 @@
+{
+  "name": "ngrx-loading-state",
+  "version": "1.0.2",
+  "private": false,
+  "peerDependencies": {
+    "@ngrx/effects": "^13.2.0",
+    "@ngrx/store": "^13.2.0",
+    "lodash": "^4.17.21"
+  }
+}

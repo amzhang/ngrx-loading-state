@@ -4,6 +4,7 @@ import { TypedAction } from '@ngrx/store/src/models';
 import { catchError, groupBy, mergeMap, Observable, of, pipe, UnaryFunction } from 'rxjs';
 import {
   cloneLoadingStateBase,
+  combineLoadingStates,
   getNewFailureState,
   getNewLoadState,
   getNewSuccessState
@@ -166,6 +167,7 @@ export class IdLoadingActions<
     loading: (id: Id) => MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
     success: (id: Id) => MemoizedSelector<object, boolean, DefaultProjectorFn<boolean>>;
     error: (id: Id) => MemoizedSelector<object, any, DefaultProjectorFn<any>>;
+    combinedState: MemoizedSelector<object, any, DefaultProjectorFn<any>>;
   } {
     const selectIdLoadingStateMap = createSelector(
       selectIdLoadingStates,
@@ -190,11 +192,16 @@ export class IdLoadingActions<
       return createSelector(state(id), (idLoadingState) => idLoadingState.error);
     };
 
+    const combinedState = createSelector(selectIdLoadingStateMap, (idLoadingStateMap) => {
+      return combineLoadingStates(Object.values(idLoadingStateMap));
+    });
+
     return {
       state,
       loading,
       success,
-      error
+      error,
+      combinedState
     };
   }
 
