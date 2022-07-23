@@ -3,7 +3,7 @@
  */
 
 export { getInitialState } from './lib/functions';
-export { globalErrorReducerFactory } from './lib/global-error-reducer';
+export { globalFailureReducerFactory } from './lib/global-failure-reducer';
 export {
   createIdLoadingActions,
   createIdLoadingStatesSelector,

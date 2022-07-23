@@ -4,8 +4,8 @@ import { lodash } from '../lodash';
 import {
   ActionFactoryResult,
   CombinedLoadingState,
-  ErrorHandlerState,
   FailureAction,
+  FailureHandlerState,
   LoadAction,
   LoadingState
 } from './loading-state-types';
@@ -49,17 +49,17 @@ export function shouldIssueFetch(
  * @param issueFetch whether the load action should issue a new API call.
  * @returns
  */
-export function getErrorHandler(
+export function getFailureHandlerState(
   currentState: Readonly<LoadingState>,
   action: Readonly<LoadAction>,
   issueFetch: boolean
-): ErrorHandlerState {
+): FailureHandlerState {
   if (currentState == null) {
     // If currentState does not exist, then errorHandlerState can be assumed to be initialised to ErrorHandlerState.INIT
     if (action.localError) {
-      return ErrorHandlerState.LOCAL;
+      return FailureHandlerState.LOCAL;
     } else {
-      return ErrorHandlerState.GLOBAL;
+      return FailureHandlerState.GLOBAL;
     }
   }
 
@@ -69,16 +69,16 @@ export function getErrorHandler(
     // If any load action sets the localError to true, then it disables the global error hander
     // until the success/failure action is handled.
     if (action.localError) {
-      return ErrorHandlerState.LOCAL;
-    } else if (currentState.errorHandlerState == ErrorHandlerState.INIT) {
+      return FailureHandlerState.LOCAL;
+    } else if (currentState.failureHandlerState == FailureHandlerState.INIT) {
       // If it's in the INIT state, then we use the default global handler because the
       // loading action has not requests for localError handler.
-      return ErrorHandlerState.GLOBAL;
+      return FailureHandlerState.GLOBAL;
     }
     // else just fall through and return the existing errorHandler unchanged.
   }
 
-  return currentState.errorHandlerState;
+  return currentState.failureHandlerState;
 }
 
 /**
@@ -120,7 +120,7 @@ export function cloneLoadingState(src: LoadingState): LoadingState {
       'loading',
       'success',
       'issueFetch',
-      'errorHandlerState',
+      'failureHandlerState',
       'successTimestamp',
       'error'
     ]);
@@ -142,7 +142,7 @@ export function getNewLoadState(
 ): Readonly<LoadingState> | null {
   const issueFetch = shouldIssueFetch(currentState, action);
 
-  const errorHandlerState = getErrorHandler(currentState, action, issueFetch);
+  const failureHandlerState = getFailureHandlerState(currentState, action, issueFetch);
 
   const newState: LoadingState = issueFetch
     ? {
@@ -150,7 +150,7 @@ export function getNewLoadState(
         loading: true,
         success: false,
         issueFetch,
-        errorHandlerState,
+        failureHandlerState,
         successTimestamp: currentState?.successTimestamp,
         error: undefined
       }
@@ -165,7 +165,7 @@ export function getNewLoadState(
         loading: currentState.loading,
         success: currentState.success,
         issueFetch,
-        errorHandlerState,
+        failureHandlerState,
         successTimestamp: currentState.successTimestamp,
         error: currentState.error
       };
@@ -185,7 +185,7 @@ export function getNewSuccessState(): Readonly<LoadingState> {
     success: true,
     issueFetch: false,
     // Each load action will set this again, so here we just set it back to default.
-    errorHandlerState: ErrorHandlerState.INIT,
+    failureHandlerState: FailureHandlerState.INIT,
     // Since this time field changes, all SuccessAction will cause a state update.
     successTimestamp: Date.now(),
     error: undefined
@@ -210,8 +210,8 @@ export function getNewFailureState(
     loading: false,
     success: false,
     issueFetch: false,
-    // Leading this as is for the global error handler to check.
-    errorHandlerState: currentState.errorHandlerState,
+    // Leading this as is for the global failure handler to check.
+    failureHandlerState: currentState.failureHandlerState,
     successTimestamp: currentState.successTimestamp,
     error: action.error
   };

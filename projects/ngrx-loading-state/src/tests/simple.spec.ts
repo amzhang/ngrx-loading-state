@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { EffectsModule } from '@ngrx/effects';
 import { Store, StoreModule, USER_PROVIDED_META_REDUCERS } from '@ngrx/store';
-import { FailureAction, globalErrorReducerFactory, MAX_AGE_LATEST } from '../public-api';
+import { FailureAction, globalFailureReducerFactory, MAX_AGE_LATEST } from '../public-api';
 
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { first } from 'rxjs';
@@ -30,7 +30,7 @@ describe('Simple test', () => {
         SimpleFacade,
         {
           provide: USER_PROVIDED_META_REDUCERS,
-          useValue: [globalErrorReducerFactory(errorHandler)]
+          useValue: [globalFailureReducerFactory(errorHandler)]
         }
       ],
       imports: [

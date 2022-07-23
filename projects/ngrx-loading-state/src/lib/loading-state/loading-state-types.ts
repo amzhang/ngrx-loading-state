@@ -11,7 +11,7 @@ export const MAX_AGE_LATEST = 0;
  * These are used by the global error reducer to keep track of whether error events have
  * already been handled
  */
-export enum ErrorHandlerState {
+export enum FailureHandlerState {
   INIT = 'INIT',
   GLOBAL = 'GLOBAL',
   LOCAL = 'LOCAL'
@@ -36,7 +36,7 @@ export interface LoadingState {
   /** True if we should issue an API call. Mostly for internal use */
   issueFetch: boolean;
   /** Tells the global error reducer how to handle this error.  */
-  errorHandlerState: ErrorHandlerState;
+  failureHandlerState: FailureHandlerState;
   /** Millisecond unix timestamp of when data is loaded */
   successTimestamp?: number;
   /** Last error returned by the API */
