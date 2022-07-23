@@ -1,15 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { EffectsModule } from '@ngrx/effects';
 import { Store, StoreModule, USER_PROVIDED_META_REDUCERS } from '@ngrx/store';
-import {
-  FailureAction,
-  globalErrorReducerFactory,
-  LoadingState,
-  MAX_AGE_LATEST
-} from '../public-api';
+import { FailureAction, globalErrorReducerFactory, MAX_AGE_LATEST } from '../public-api';
 
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { first } from 'rxjs';
+import { LoadingStateBase } from '../lib/loading-state/loading-state-types';
 import { fetchCount, fetchIdCount } from './simple.actions';
 import { SimpleEffects } from './simple.effects';
 import { SimpleFacade } from './simple.facade';
@@ -17,9 +13,9 @@ import { simpleReducer, SIMPLE_FEATURE_KEY } from './simple.reducer';
 
 describe('Simple test', () => {
   let globalFailureAction: FailureAction | null = null;
-  let globalFailureState: LoadingState | null = null;
+  let globalFailureState: LoadingStateBase | null = null;
 
-  function errorHandler(failureAction: FailureAction, state: LoadingState) {
+  function errorHandler(failureAction: FailureAction, state: LoadingStateBase) {
     globalFailureAction = failureAction;
     globalFailureState = state;
   }
@@ -239,5 +235,24 @@ describe('Simple test', () => {
           resolve(0);
         });
     });
+  });
+
+  it('should use global error handler for id loading action', async () => {
+    globalFailureAction = null;
+    globalFailureState = null;
+
+    store.dispatch(fetchIdCount.idLoad({ id: '1', count: 10, forceFailure: true }));
+
+    await new Promise((resolve) => {
+      simpleFacade.getFetchIdCountState('1').subscribe((state) => {
+        if (!state.loading) {
+          expect(state.error).toBeTruthy();
+          resolve(0);
+        }
+      });
+    });
+
+    expect(globalFailureAction).toBeTruthy();
+    expect(globalFailureState).toBeTruthy();
   });
 });
