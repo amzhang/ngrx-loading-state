@@ -193,7 +193,7 @@ export class IdLoadingActions<
     };
 
     const combinedState = createSelector(selectIdLoadingStateMap, (idLoadingStateMap) => {
-      return combineLoadingStates(Object.values(idLoadingStateMap));
+      return combineLoadingStates(idLoadingStateMap ? Object.values(idLoadingStateMap) : []);
     });
 
     return {
