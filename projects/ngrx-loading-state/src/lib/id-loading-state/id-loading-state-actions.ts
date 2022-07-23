@@ -245,6 +245,9 @@ export class IdLoadingActions<
     idLoadingStateMap: Readonly<IdLoadingStateMap>,
     id: Id
   ): Readonly<IdLoadingState> {
+    if (id == null || id === '') {
+      throw new Error('id parameter is null or empty string, this is almost always a logic bug.');
+    }
     // We should not be modifying the state without going via the reducer, hence
     // returning the immutable "init" object.
     return idLoadingStateMap?.[id];
