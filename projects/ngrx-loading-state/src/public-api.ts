@@ -2,7 +2,7 @@
  * Public API Surface of ngrx-loading-state
  */
 
-export { getInitialState as initialise } from './lib/functions';
+export { getInitialState } from './lib/functions';
 export { globalErrorReducerFactory } from './lib/global-error-reducer';
 export {
   createIdLoadingActions,

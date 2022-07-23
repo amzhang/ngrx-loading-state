@@ -1,8 +1,10 @@
-import { idFailure, idLoad, idSuccess } from '../lib/id-loading-state/id-loading-state-creators';
 import {
   createIdLoadingActions,
   createLoadingActions,
   failure,
+  idFailure,
+  idLoad,
+  idSuccess,
   load,
   success
 } from '../public-api';

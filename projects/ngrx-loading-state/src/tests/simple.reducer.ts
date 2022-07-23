@@ -1,7 +1,6 @@
 import { createEntityAdapter, EntityState } from '@ngrx/entity';
 import { createReducer } from '@ngrx/store';
-import { getInitialState } from '../lib/functions';
-import { WithLoadingStates } from '../public-api';
+import { getInitialState, WithLoadingStates } from '../public-api';
 import { fetchCount, fetchIdCount } from './simple.actions';
 
 export const SIMPLE_FEATURE_KEY = 'simple';

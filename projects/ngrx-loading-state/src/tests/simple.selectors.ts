@@ -1,7 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { createIdLoadingStatesSelector } from '../lib/id-loading-state/id-loading-state-creators';
-import { Id } from '../lib/id-loading-state/id-loading-state-types';
-import { createLoadingStatesSelector } from '../public-api';
+import { createIdLoadingStatesSelector, createLoadingStatesSelector } from '../public-api';
 import { fetchCount, fetchIdCount } from './simple.actions';
 import { idCountAdapter, SimpleState, SIMPLE_FEATURE_KEY } from './simple.reducer';
 
@@ -18,7 +16,7 @@ export const fetchIdCountSelectors = fetchIdCount.createIdSelectors(selectIdLoad
 export const selectCount = createSelector(selectState, (state) => state.count);
 export const selectIdCounts = createSelector(selectState, (state) => state.idCounts);
 export const idCountSelectors = idCountAdapter.getSelectors(selectIdCounts);
-export const selectIdCount = (id: Id) => {
+export const selectIdCount = (id: string) => {
   return createSelector(idCountSelectors.selectEntities, (idCounts) => {
     return idCounts[id];
   });
