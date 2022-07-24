@@ -34,6 +34,13 @@ It is often necessary to load multiple pieces of data into the store with a sing
 npm install ngrx-loading-state
 ```
 
+# Demo
+
+Repository here: https://github.com/amzhang/ngrx-loading-state-demo
+
+[Live demo here.](https://stackblitz.com/edit/angular-ivy-rocjzb?file=src%2Fapp%2Fapp.component.ts)
+
+
 # Setup
 
 For completeness, the complete code, including all imports, boilerplate for setting up ngrx etc are included below.
@@ -195,5 +202,4 @@ this.simpleFacade.fetchUser({ userId: '123', maxAge: 5000 });
 ```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: Infinity });
 ```
-
 
