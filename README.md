@@ -172,25 +172,25 @@ and in the html template you can react to the loading state:
 
 ```
 
-By default, loading action always issue a new API call:
+By default, loading action **always issue a new API call**:
 
 ```ts
 this.simpleFacade.fetchUser({ userId: '123' });
 ```
 
-if you don't want to issue an new API call if one is already in progress, then use:
+- If you don't want to issue an new API call if **one is already in progress**, then use:
 
 ```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: MAX_AGE_LATEST });
 ```
 
-if you don't want to issue a new API call if the last successful API call was less than 5 seconds ago, then use:
+- If you don't want to issue a new API call if the last successful API call was **less than 5 seconds ago**, then use:
 
 ```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: 5000 });
 ```
 
-if you don't want to issue a new API call as long as data has been successfully loaded previously:
+- If you don't want to issue a new API call **as long as data has been successfully loaded previously**:
 
 ```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: Infinity });
