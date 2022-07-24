@@ -30,7 +30,9 @@ It is often necessary to load multiple pieces of data into the store with a sing
 
 # Installation
 
+```bash
 npm install ngrx-loading-state
+```
 
 # Setup
 
@@ -38,7 +40,7 @@ For completeness, the complete code, including all imports, boilerplate for sett
 
 ## Actions
 
-```
+```ts
 // simple.actions.ts
 
 import { createLoadingActions, failure, load, success } from 'ngrx-loading-state';
