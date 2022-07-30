@@ -30,7 +30,16 @@ It is often necessary to load multiple pieces of data into the store with a sing
 
 # Installation
 
+```bash
 npm install ngrx-loading-state
+```
+
+# Demo
+
+Repository here: https://github.com/amzhang/ngrx-loading-state-demo
+
+[Live demo here.](https://stackblitz.com/edit/angular-ivy-rocjzb?file=src%2Fapp%2Fapp.component.ts)
+
 
 # Setup
 
@@ -38,7 +47,7 @@ For completeness, the complete code, including all imports, boilerplate for sett
 
 ## Actions
 
-```
+```ts
 // simple.actions.ts
 
 import { createLoadingActions, failure, load, success } from 'ngrx-loading-state';
@@ -53,7 +62,7 @@ export const fetchUser = createLoadingActions(
 
 ## Reducer
 
-```
+```ts
 // simple.reducer.ts
 
 import { createReducer } from '@ngrx/store';
@@ -88,7 +97,7 @@ export const simpleReducer = createReducer(
 ```
 
 ## Selectors
-```
+```ts
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { createLoadingStatesSelector } from 'ngrx-loading-state';
 import { fetchUser } from './simple.actions';
@@ -103,7 +112,7 @@ export const fetchUserSelectors = fetchUser.createSelectors(selectLoadingStates)
 
 
 ## Effects
-```
+```ts
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
@@ -143,7 +152,7 @@ export class SimpleEffects {
 
 You can issue loading actions anywhere, but usually they are issued in the smart component that needs the data. For example, a typical component might look like this:
 
-```
+```ts
 @Component({
   selector: 'loading-state-demo',
   templateUrl: './loading-state-demo.component.html',
@@ -165,33 +174,32 @@ export class LoadingStateDemoComponent {
 
 and in the html template you can react to the loading state:
 
-```
+```html
 <div>{{ (fetchUserState$ | async)?.success ? 'Data has loaded' : 'Data has not loaded yet'}}</div>
 
 ```
 
-By default, loading action always issue a new API call:
+By default, loading action **always issue a new API call**:
 
-```
+```ts
 this.simpleFacade.fetchUser({ userId: '123' });
 ```
 
-if you don't want to issue an new API call if one is already in progress, then use:
+- If you don't want to issue an new API call if **one is already in progress**, then use:
 
-```
+```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: MAX_AGE_LATEST });
 ```
 
-if you don't want to issue a new API call if the last successful API call was less than 5 seconds ago, then use:
+- If you don't want to issue a new API call if the last successful API call was **less than 5 seconds ago**, then use:
 
-```
+```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: 5000 });
 ```
 
-if you don't want to issue a new API call as long as data has been successfully loaded previously:
+- If you don't want to issue a new API call **as long as data has been successfully loaded previously**:
 
-```
+```ts
 this.simpleFacade.fetchUser({ userId: '123', maxAge: Infinity });
 ```
-
 
