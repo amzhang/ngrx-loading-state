@@ -1,6 +1,6 @@
 {
   "name": "ngrx-loading-state",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": false,
   "peerDependencies": {
     "@ngrx/effects": "^13.2.0",
