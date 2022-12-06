@@ -6,6 +6,7 @@ import {
   CombinedLoadingState,
   FailureAction,
   FailureHandlerState,
+  InternalLoadAction,
   LoadAction,
   LoadingState
 } from './loading-state-types';
@@ -141,6 +142,19 @@ export function getNewLoadState(
   currentState: LoadingState
 ): Readonly<LoadingState> | null {
   const issueFetch = shouldIssueFetch(currentState, action);
+
+  // Previously we rely on the state to track the issueFetch flag. But if there are delays added to the effect
+  // then we could get subsequent actions overwriting the issueFetch field. And when the delay is up the
+  // filterLoading() operator will look at the current state and use the overwritten issueFetch flag. eg.
+  //
+  //    throttleTime(this.dashboardConfig.statusQueryThrottleTime, undefined, {
+  //      leading: true,
+  //      trailing: true,
+  //    }),
+  //    filterLoading(this.store.select(fetchStatusesSelectors.state)),
+  //
+  // Now we keep the issueFetch state in the action.
+  (action as any as InternalLoadAction).issueFetch(issueFetch);
 
   const failureHandlerState = getFailureHandlerState(currentState, action, issueFetch);
 

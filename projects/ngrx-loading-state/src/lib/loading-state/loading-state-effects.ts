@@ -1,7 +1,11 @@
 import { filter, map, Observable, pipe, UnaryFunction, withLatestFrom } from 'rxjs';
-import { LoadingState } from './loading-state-types';
+import { InternalLoadAction, LoadAction, LoadingState } from './loading-state-types';
 
 /**
+ * DEPRECATED
+ *
+ * Use filterIssueFetch() instead.
+ *
  * A ngrx pipeline operator that filters out any actions that does not require the
  * issuing of API calls.
  *
@@ -34,4 +38,23 @@ export function filterLoading<T>(
     ),
     map(([action, _]: [T, LoadingState]) => action)
   );
+}
+
+/**
+ * We include the issueFetch as a part of the action. This way we don't need the action to be
+ * tightly synced with the state.
+ *
+ * @example
+ *  fetchCount$ = createEffect(() => {
+ *    return this.actions$.pipe(
+ *      ofType(fetchCount.load),
+ *      filterIssueFetch(),
+ *      switchMap((action) => {
+ *        ...
+ *      })
+ *    );
+ *  });
+ */
+export function filterIssueFetch<T extends LoadAction>() {
+  return filter((action: T) => !!(action as any as InternalLoadAction).issueFetch());
 }

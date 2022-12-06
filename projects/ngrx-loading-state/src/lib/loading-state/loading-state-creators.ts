@@ -1,5 +1,5 @@
-import { createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
-import { NoIntersection } from '../utils';
+import { createAction, createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
+import { createGetterSetter, NoIntersection } from '../utils';
 import { LoadingActions } from './loading-state-actions';
 import { actionFactory } from './loading-state-functions';
 import {
@@ -52,8 +52,14 @@ export function createLoadingActions<
   _success: Success<SuccessPayloadType>,
   _failure: Failure<FailurePayloadType>
 ): LoadingActions<LoadPayloadType, SuccessPayloadType, FailurePayloadType> {
+  const load = createAction(`${type}`, (props) => ({
+    ...props,
+    // We must create the extract variable here because action objects are frozen.
+    issueFetch: createGetterSetter<boolean | null>(null)
+  }));
+
   return new LoadingActions({
-    load: actionFactory<LoadAction & LoadPayloadType>(`${type}`),
+    load,
     success: actionFactory<SuccessPayloadType>(`${type} Success`),
     failure: actionFactory<FailureAction & FailurePayloadType>(`${type} Failure`)
   });

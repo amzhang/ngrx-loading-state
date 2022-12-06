@@ -19,7 +19,7 @@ export {
   load,
   success
 } from './lib/loading-state/loading-state-creators';
-export { filterLoading } from './lib/loading-state/loading-state-effects';
+export { filterIssueFetch, filterLoading } from './lib/loading-state/loading-state-effects';
 export {
   CombinedLoadingState,
   FailureAction,
@@ -28,3 +28,4 @@ export {
   MAX_AGE_LATEST
 } from './lib/loading-state/loading-state-types';
 export { WithLoadingStates } from './lib/types';
+export { createGetterSetter, NoIntersection } from './lib/utils';

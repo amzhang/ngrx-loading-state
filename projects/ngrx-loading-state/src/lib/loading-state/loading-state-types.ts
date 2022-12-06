@@ -1,5 +1,6 @@
 import { ActionCreator, Creator, NotAllowedCheck, ReducerTypes } from '@ngrx/store';
 import { TypedAction } from '@ngrx/store/src/models';
+import { GetterSetter } from '../utils';
 
 /**
  * Using this constant for the maxAge parameter will issue an API load if there is no
@@ -33,7 +34,11 @@ export interface LoadingState {
   loading: boolean;
   /** Api returned successfully */
   success: boolean;
-  /** True if we should issue an API call. Mostly for internal use */
+  /**
+   * True if we should issue an API call. Not really needed any more now that issueFetch
+   * is a field in the action. But kept here for backward compatibility since filterLoading() uses this.
+   * We should be using filterIssueFetch() instead.
+   */
   issueFetch: boolean;
   /** Tells the global error reducer how to handle this error.  */
   failureHandlerState: FailureHandlerState;
@@ -61,6 +66,10 @@ export interface LoadAction {
    * locally instead of showing a global error.
    */
   localError?: boolean;
+}
+
+export interface InternalLoadAction extends LoadAction {
+  issueFetch: GetterSetter<boolean | null>;
 }
 
 export interface FailureAction {

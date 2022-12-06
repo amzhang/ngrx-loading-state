@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { delay, map, of, switchMap } from 'rxjs';
-import { filterLoading } from '../public-api';
+import { filterIssueFetch } from '../public-api';
 import { fetchCount, fetchIdCount } from './simple.actions';
-import { fetchCountSelectors, fetchIdCountSelectors } from './simple.selectors';
 
 @Injectable()
 export class SimpleEffects {
@@ -15,7 +14,7 @@ export class SimpleEffects {
   fetchCount$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(fetchCount.load),
-      filterLoading(this.store.select(fetchCountSelectors.state)),
+      filterIssueFetch(),
       switchMap((action) => {
         SimpleEffects.apiCalls += 1;
 
@@ -35,7 +34,7 @@ export class SimpleEffects {
 
   fetchIdCount$ = fetchIdCount.createEffect(this.actions$, (idActions$, id) => {
     return idActions$.pipe(
-      filterLoading(this.store.select(fetchIdCountSelectors.state(id))),
+      filterIssueFetch(),
       switchMap((action) => {
         SimpleEffects.apiCalls += 1;
         return of(true).pipe(

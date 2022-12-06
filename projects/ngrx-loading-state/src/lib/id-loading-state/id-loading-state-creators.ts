@@ -2,9 +2,9 @@
 // just holds the type and allows you to name the class to make it easier to read. The alternative
 // is to  explicitly specify the type when calling createLoadingActions<...>(). But the template
 
-import { createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
+import { createAction, createSelector, DefaultProjectorFn, MemoizedSelector } from '@ngrx/store';
 import { actionFactory } from '../loading-state/loading-state-functions';
-import { NoIntersection } from '../utils';
+import { createGetterSetter, NoIntersection } from '../utils';
 import { IdLoadingActions } from './id-loading-state-actions';
 import {
   IdFailureAction,
@@ -79,8 +79,14 @@ export function createIdLoadingActions<
   _idSuccess: IdSuccess<SuccessPayloadType>,
   _idFailure: IdFailure<FailurePayloadType>
 ): IdLoadingActions<LoadPayloadType, SuccessPayloadType, FailurePayloadType> {
+  const idLoad = createAction(`${actionTypePrefix}`, (props) => ({
+    ...props,
+    // We must create the extract variable here because action objects are frozen.
+    issueFetch: createGetterSetter<boolean | null>(null)
+  }));
+
   return new IdLoadingActions({
-    idLoad: actionFactory<IdLoadAction & LoadPayloadType>(`${actionTypePrefix}`),
+    idLoad,
     idSuccess: actionFactory<IdSuccessAction & SuccessPayloadType>(`${actionTypePrefix} Success`),
     idFailure: actionFactory<IdFailureAction & FailurePayloadType>(`${actionTypePrefix} Failure`)
   });
