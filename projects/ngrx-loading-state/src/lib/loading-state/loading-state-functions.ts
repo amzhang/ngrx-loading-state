@@ -1,6 +1,5 @@
 import { ActionCreatorProps, createAction, NotAllowedCheck, props } from '@ngrx/store';
 import { Action } from '@ngrx/store/src/models';
-import { lodash } from '../lodash';
 import {
   ActionFactoryResult,
   CombinedLoadingState,
@@ -9,6 +8,7 @@ import {
   LoadAction,
   LoadingState
 } from './loading-state-types';
+import { isEqual, pick } from 'lodash';
 
 /**
  * See if a new API fetch should be issued.
@@ -115,7 +115,7 @@ export function cloneLoadingState(src: LoadingState): LoadingState {
     return src;
   } else {
     // Using Required<> to ensure we don't miss any fields from LoadingStateBase.
-    const ret: Required<LoadingState> = lodash.pick(src as Required<LoadingState>, [
+    const ret: Required<LoadingState> = pick(src as Required<LoadingState>, [
       'isLoadingState',
       'loading',
       'success',
@@ -172,7 +172,7 @@ export function getNewLoadState(
 
   // Note that even if issueFetch is false, the errorHandlerState could still change. So we should
   // compare every field from old to new state.
-  return lodash.isEqual(currentState, newState) ? null : newState;
+  return isEqual(currentState, newState) ? null : newState;
 }
 
 /**

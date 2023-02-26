@@ -20,7 +20,7 @@
     "@angular/router": "~13.2.0",
     "@ngrx/effects": "^13.2.0",
     "@ngrx/store": "^13.2.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

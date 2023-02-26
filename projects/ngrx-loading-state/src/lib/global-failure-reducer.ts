@@ -4,7 +4,7 @@ import {
   FailureHandlerState,
   LoadingState
 } from './loading-state/loading-state-types';
-import { lodash } from './lodash';
+import { isArray, isPlainObject } from 'lodash';
 
 export type FailureHandler = (failureAction: FailureAction, state: LoadingState) => void;
 
@@ -40,7 +40,7 @@ function processState(options: {
       failureHandler(failureAction, state);
     }
   } else {
-    if (lodash.isArray(state)) {
+    if (isArray(state)) {
       // Recursively handle all sub fields. This includes LoadingStateTypes.ID_LOADING_STATE
       // As per previous comment, we are not creating new state references so editing in-place.
       state.forEach((field) =>
@@ -49,7 +49,7 @@ function processState(options: {
           state: field
         })
       );
-    } else if (lodash.isPlainObject(state)) {
+    } else if (isPlainObject(state)) {
       Object.values(state as object).forEach((field) =>
         processState({
           ...options,
