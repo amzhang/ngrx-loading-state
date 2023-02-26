@@ -41,7 +41,7 @@ export function idFailure<
  * and you can issue load actions for each one, parameterized by an id of your own choosing, and observe the loading state
  * of each item, again parameterized by the id.
  *
- * @param type The "type" of the action.
+ * @param actionTypePrefix The "type" of the action.
  * @param _idLoad See usage example
  * @param _idSuccess See usage example
  * @param _idFailure See usage example
